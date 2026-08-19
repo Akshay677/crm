@@ -1,74 +1,63 @@
 <template>
-  <div v-if="attachments.length">
-    <div v-for="(attachment, i) in attachments" :key="attachment.name">
-      <div
-        class="activity flex justify-between gap-2 hover:bg-surface-sidebar rounded text-base p-2.5 cursor-pointer"
-        @click="openFile(attachment)"
-      >
-        <div class="flex gap-2 truncate">
-          <div
-            class="size-11 bg-surface-base rounded overflow-hidden flex-shrink-0 flex justify-center items-center"
-            :class="{ border: !isImage(attachment.file_type) }"
+  <div v-if="attachments.length" class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div
+      v-for="attachment in attachments"
+      :key="attachment.name"
+      class="group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-outline-elevation-2 bg-surface-base transition-shadow hover:shadow-sm"
+      @click="openFile(attachment)"
+    >
+      <div class="relative flex aspect-square w-full items-center justify-center bg-surface-gray-2">
+        <img
+          v-if="isImage(attachment.file_type)"
+          class="h-full w-full object-cover"
+          :src="attachment.file_url"
+          :alt="attachment.file_name"
+        />
+        <component
+          :is="fileIcon(attachment.file_type)"
+          v-else
+          class="size-10 text-ink-gray-4"
+        />
+        
+        <div class="absolute right-2 top-2 flex gap-1 opacity-100 transition-opacity group-hover:opacity-100 sm:opacity-0">
+          <Button
+            :tooltip="
+              attachment.is_private ? __('Make Public') : __('Make Private')
+            "
+            class="!size-7 shadow-sm"
+            @click.stop="togglePrivate(attachment.name, attachment.is_private)"
           >
-            <img
-              v-if="isImage(attachment.file_type)"
-              class="size-full object-cover"
-              :src="attachment.file_url"
-              :alt="attachment.file_name"
-            />
-            <component
-              :is="fileIcon(attachment.file_type)"
-              v-else
-              class="size-4 text-ink-gray-7"
-            />
-          </div>
-          <div class="flex flex-col justify-center gap-1 truncate">
-            <div class="text-base text-ink-gray-8 truncate">
-              {{ attachment.file_name }}
-            </div>
-            <div class="mb-1 text-sm text-ink-gray-5">
-              {{ convertSize(attachment.file_size) }}
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-col items-end gap-2 flex-shrink-0">
-          <TimelineTimestamp :date="attachment.creation" />
-          <div class="flex gap-1">
-            <Button
-              :tooltip="
-                attachment.is_private ? __('Make Public') : __('Make Private')
-              "
-              class="!size-5"
-              @click.stop="
-                togglePrivate(attachment.name, attachment.is_private)
-              "
-            >
-              <template #icon>
-                <FeatherIcon
-                  :name="attachment.is_private ? 'lock' : 'unlock'"
-                  class="size-3 text-ink-gray-7"
-                />
-              </template>
-            </Button>
-            <Button
-              :tooltip="__('Delete Attachment')"
-              class="!size-5"
-              @click.stop="() => deleteAttachment(attachment.name)"
-            >
-              <template #icon>
-                <span
-                  class="lucide-trash-2 size-3 text-ink-gray-7"
-                  aria-hidden="true"
-                />
-              </template>
-            </Button>
-          </div>
+            <template #icon>
+              <FeatherIcon
+                :name="attachment.is_private ? 'lock' : 'unlock'"
+                class="size-3.5 text-ink-gray-7"
+              />
+            </template>
+          </Button>
+          <Button
+            :tooltip="__('Delete Attachment')"
+            class="!size-7 shadow-sm"
+            @click.stop="() => deleteAttachment(attachment.name)"
+          >
+            <template #icon>
+              <span
+                class="lucide-trash-2 size-3.5 text-ink-gray-7"
+                aria-hidden="true"
+              />
+            </template>
+          </Button>
         </div>
       </div>
-      <div
-        v-if="i < attachments.length - 1"
-        class="mx-2 h-px border-t border-outline-elevation-2"
-      />
+      
+      <div class="flex flex-col border-t border-outline-elevation-2 p-2.5">
+        <div class="truncate text-sm font-medium text-ink-gray-9" :title="attachment.file_name">
+          {{ attachment.file_name }}
+        </div>
+        <div class="mt-0.5 flex items-center justify-between text-xs text-ink-gray-5">
+          <span>{{ convertSize(attachment.file_size) }}</span>
+          <TimelineTimestamp :date="attachment.creation" />
+        </div>
+      </div>
     </div>
   </div>
 </template>

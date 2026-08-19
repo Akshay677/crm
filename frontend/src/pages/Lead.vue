@@ -8,6 +8,63 @@
       </Breadcrumbs>
     </template>
     <template v-if="!errorTitle" #right-header>
+      <div class="hidden lg:flex items-center gap-2">
+        <CustomActions
+          v-if="document._actions?.length"
+          :actions="document._actions"
+        />
+        <CustomActions
+          v-if="document.actions?.length"
+          :actions="document.actions"
+        />
+        <AssignTo v-model="assignees.data" doctype="CRM Lead" :docname="leadId" />
+        <Dropdown
+          v-if="doc && document.statuses"
+          :options="statuses"
+          placement="right"
+        >
+          <template #default="{ open }">
+            <Button
+              v-if="doc.status"
+              :label="statusLabel(doc.status)"
+              :iconRight="open ? 'chevron-up' : 'chevron-down'"
+            >
+              <template #prefix>
+                <IndicatorIcon :class="getLeadStatus(doc.status).color" />
+              </template>
+            </Button>
+          </template>
+        </Dropdown>
+        <Button
+          :label="__('Convert to Deal')"
+          variant="solid"
+          @click="showConvertToDealModal = true"
+        />
+      </div>
+      <div class="flex lg:hidden items-center">
+        <Dropdown
+          v-if="doc && document.statuses"
+          :options="statuses"
+          placement="right"
+        >
+          <template #default="{ open }">
+            <Button
+              v-if="doc.status"
+              :label="statusLabel(doc.status)"
+              :iconRight="open ? 'chevron-up' : 'chevron-down'"
+            >
+              <template #prefix>
+                <IndicatorIcon :class="getLeadStatus(doc.status).color" />
+              </template>
+            </Button>
+          </template>
+        </Dropdown>
+      </div>
+    </template>
+  </LayoutHeader>
+  <div v-if="doc.name && isMobileView" class="flex h-12 shrink-0 items-center justify-between gap-2 border-b px-3 py-2.5">
+    <AssignTo v-model="assignees.data" doctype="CRM Lead" :docname="leadId" />
+    <div class="flex items-center gap-2">
       <CustomActions
         v-if="document._actions?.length"
         :actions="document._actions"
@@ -16,40 +73,49 @@
         v-if="document.actions?.length"
         :actions="document.actions"
       />
-      <AssignTo v-model="assignees.data" doctype="CRM Lead" :docname="leadId" />
-      <Dropdown
-        v-if="doc && document.statuses"
-        :options="statuses"
-        placement="right"
-      >
-        <template #default="{ open }">
-          <Button
-            v-if="doc.status"
-            :label="statusLabel(doc.status)"
-            :iconRight="open ? 'chevron-up' : 'chevron-down'"
-          >
-            <template #prefix>
-              <IndicatorIcon :class="getLeadStatus(doc.status).color" />
-            </template>
-          </Button>
-        </template>
-      </Dropdown>
       <Button
-        :label="__('Convert to Deal')"
+        :label="__('Convert')"
         variant="solid"
         @click="showConvertToDealModal = true"
       />
-    </template>
-  </LayoutHeader>
+    </div>
+  </div>
   <div v-if="doc.name" class="flex h-full overflow-hidden">
     <Tabs
       v-model="tabIndex"
       :tabs="tabs"
-      class="flex flex-1 overflow-hidden flex-col [&_[role='tab']]:px-0 [&_[role='tab']]:shrink-0 [&_[role='tablist']]:px-5 [&_[role='tablist']::-webkit-scrollbar]:h-0 [&_[role='tablist']]:min-h-[45px] [&_[role='tablist']]:gap-7.5 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+      :class="[
+        'flex flex-1 flex-col overflow-hidden',
+        '[&_[role=\'tab\']]:shrink-0 [&_[role=\'tab\']]:px-0',
+        '[&_[role=\'tablist\']::-webkit-scrollbar]:h-0 [&_[role=\'tablist\']]:min-h-[45px] [&_[role=\'tablist\']]:gap-7.5',
+        isMobileView ? '[&_[role=\'tablist\']]:px-3' : '[&_[role=\'tablist\']]:px-5',
+        '[&_[role=\'tabpanel\']:not([hidden])]:flex [&_[role=\'tabpanel\']:not([hidden])]:grow'
+      ]"
     >
-      <template #tab-panel>
+      <template #tab-panel="{ tab }">
+        <div v-if="tab?.name == 'Details'" class="flex flex-col flex-1 overflow-y-auto">
+          <SLASection
+            v-if="doc.sla_status"
+            v-model="doc"
+            @updateField="updateField"
+          />
+          <div
+            v-if="sections.data"
+            class="flex flex-1 flex-col justify-between overflow-hidden"
+          >
+            <SidePanelLayout
+              :sections="sections.data"
+              doctype="CRM Lead"
+              :docname="leadId"
+              @reload="sections.reload"
+              @beforeFieldChange="beforeStatusChange"
+              @afterFieldChange="reloadResources"
+            />
+          </div>
+        </div>
         <Activities
-          ref="activities"
+          v-else-if="tab?.name === tabs[tabIndex]?.name"
+          :ref="(el) => { if (el) activities.value = el }"
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           doctype="CRM Lead"
@@ -60,7 +126,7 @@
         />
       </template>
     </Tabs>
-    <Resizer class="flex flex-col justify-between border-l" side="right">
+    <Resizer v-if="!isMobileView" class="flex flex-col justify-between border-l" side="right">
       <div
         class="flex h-[45px] cursor-copy items-center border-b px-5 py-2.5 text-lg-medium text-ink-gray-9"
         @click="copyToClipboard(leadId)"
@@ -272,6 +338,7 @@ import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
 import { useDocument } from '@/data/document'
+import { isMobileView } from '@/composables/settings'
 import { whatsappEnabled } from '@/composables/whatsapp'
 import { callEnabled } from '@/composables/telephony'
 import {
@@ -414,6 +481,12 @@ usePageMeta(() => {
 
 const tabs = computed(() => {
   let tabOptions = [
+    {
+      name: 'Details',
+      label: __('Details'),
+      icon: DetailsIcon,
+      condition: () => isMobileView.value,
+    },
     {
       name: 'Activity',
       label: __('Activity'),
