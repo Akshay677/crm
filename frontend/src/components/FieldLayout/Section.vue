@@ -22,6 +22,7 @@
         <Column
           :class="{ 'mt-6': section.label && !section.hideLabel }"
           :column="column"
+          :isSingleColumn="section.columns?.length <= 1"
           :data-name="column.name"
         />
       </template>
