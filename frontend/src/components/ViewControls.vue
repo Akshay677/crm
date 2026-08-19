@@ -3,6 +3,21 @@
     v-if="isMobileView"
     class="flex flex-col justify-between gap-2 sm:px-5 px-3 py-4"
   >
+    <div
+      v-if="quickFilterList && quickFilterList.length"
+      class="grid grid-cols-2 gap-2 mb-2"
+    >
+      <div
+        v-for="filter in quickFilterList"
+        :key="filter.fieldname"
+        class="min-w-0"
+      >
+        <QuickFilterField
+          :filter="filter"
+          @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
+        />
+      </div>
+    </div>
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between gap-2 overflow-x-auto">
         <div class="flex gap-2">
@@ -129,9 +144,9 @@
       <Button icon="lucide-x" @click="customizeQuickFilter = false" />
     </div>
   </div>
-  <div v-else class="flex items-center justify-between gap-2 px-5 py-4 min-w-0">
+  <div v-else class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-2 px-5 py-4 min-w-0">
     <FadedScrollableDiv
-      class="flex flex-1 min-w-0 items-center overflow-x-auto -ml-1 h-9"
+      class="hidden lg:flex flex-1 min-w-0 items-center overflow-x-auto -ml-1 h-9"
       orientation="horizontal"
     >
       <div
@@ -145,8 +160,25 @@
         />
       </div>
     </FadedScrollableDiv>
-    <div class="-ml-2 h-[70%] border-l shrink-0" />
-    <div class="flex items-center gap-2 shrink-0">
+    
+    <div
+      v-if="quickFilterList && quickFilterList.length"
+      class="grid grid-cols-2 lg:hidden gap-2 w-full"
+    >
+      <div
+        v-for="filter in quickFilterList"
+        :key="filter.fieldname"
+        class="min-w-0"
+      >
+        <QuickFilterField
+          :filter="filter"
+          @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
+        />
+      </div>
+    </div>
+
+    <div class="hidden lg:block -ml-2 h-[70%] border-l shrink-0" />
+    <div class="flex flex-wrap items-center gap-2 shrink-0">
       <div
         v-if="viewUpdated && route.query.view && (!view.public || isManager())"
         class="flex shrink-0 items-center gap-2 border-r pr-2"
