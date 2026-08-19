@@ -36,7 +36,7 @@ const DesktopLayout = defineAsyncComponent(
 
 const { width } = useWindowSize()
 const Layout = computed(() => {
-  if (width.value < 640) {
+  if (width.value < 1024) {
     return MobileLayout
   } else {
     return DesktopLayout
