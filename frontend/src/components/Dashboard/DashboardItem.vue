@@ -2,7 +2,9 @@
   <div class="h-full w-full">
     <div
       v-if="item.type == 'number_chart'"
-      class="flex h-full w-full rounded shadow overflow-hidden cursor-pointer"
+      class="flex h-full w-full rounded shadow overflow-hidden"
+      :class="item.name === 'total_campaigns' && !editing ? 'cursor-pointer hover:ring-1 hover:ring-outline-gray-2' : ''"
+      @click="handleClick"
     >
       <Tooltip :text="__(item.data.tooltip)">
         <NumberChart
@@ -36,10 +38,21 @@
 </template>
 <script setup>
 import { AxisChart, DonutChart, NumberChart, Tooltip } from 'frappe-ui'
+import { useRouter } from 'vue-router'
 
-defineProps({
+const router = useRouter()
+
+const props = defineProps({
   index: { type: Number, required: true },
   item: { type: Object, required: true },
   editing: { type: Boolean, default: false },
 })
+
+function handleClick() {
+  if (props.editing) return
+
+  if (props.item.name === 'total_campaigns') {
+    router.push({ name: 'Leads' })
+  }
+}
 </script>
