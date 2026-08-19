@@ -141,6 +141,8 @@
                           :modelValue="doc[field.fieldname]"
                           :options="field.options"
                           :placeholder="field.placeholder"
+                          side="bottom"
+                          :offset="4"
                           @update:modelValue="(v) => fieldChange(v, field)"
                         />
                         <Link

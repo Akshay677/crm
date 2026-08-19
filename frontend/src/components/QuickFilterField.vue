@@ -11,8 +11,10 @@
     v-model="filter.value"
     class="form-control cursor-pointer [&_select]:cursor-pointer"
     type="select"
-    :options="filter.options"
+    :options="formattedOptions"
     :placeholder="filter.label"
+    side="bottom"
+    :offset="4"
     @update:modelValue="updateFilter(filter, $event)"
   />
   <Link
@@ -42,13 +44,41 @@
 import Link from '@/components/Controls/Link.vue'
 import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
-import { reactive, watch } from 'vue'
+import { reactive, watch, computed } from 'vue'
 
 const props = defineProps({
   filter: { type: Object, required: true },
 })
 
 const filter = reactive(props.filter)
+
+const formattedOptions = computed(() => {
+  let opts = props.filter.options
+  if (!opts) return []
+
+  if (typeof opts === 'string') {
+    opts = opts.split('\n')
+  }
+
+  if (Array.isArray(opts)) {
+    return opts
+      .map((opt) => {
+        if (typeof opt === 'string') {
+          const trimmed = opt.trim()
+          return trimmed ? { label: trimmed, value: trimmed } : null
+        } else if (opt && typeof opt === 'object') {
+          const label = (opt.label ?? opt.value ?? '').toString().trim()
+          const value = opt.value ?? opt.label ?? ''
+          return label !== '' || value !== ''
+            ? { ...opt, label: label || value, value }
+            : null
+        }
+        return null
+      })
+      .filter(Boolean)
+  }
+  return opts
+})
 
 const emit = defineEmits(['applyQuickFilter'])
 
