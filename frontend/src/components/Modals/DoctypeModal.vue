@@ -1,10 +1,10 @@
 <template>
   <Dialog v-model:open="show" :size="'xl'">
     <template #body>
-      <div class="bg-surface-elevation-1 px-4 pb-6 pt-5 sm:px-6">
-        <div class="mb-5 flex items-center justify-between">
+      <div class="bg-surface-elevation-1 px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-5 overflow-x-hidden">
+        <div class="mb-4 flex items-center justify-between">
           <div class="flex gap-2 items-center">
-            <h3 class="text-3xl-semibold leading-6 text-ink-gray-9">
+            <h3 class="text-xl sm:text-2xl font-semibold leading-6 text-ink-gray-9">
               {{
                 editMode
                   ? __('Edit ' + (doctypeTitle || doctype))
@@ -34,7 +34,7 @@
             />
           </div>
         </div>
-        <div>
+        <div class="max-h-[68vh] sm:max-h-[72vh] overflow-y-auto overflow-x-hidden px-0.5">
           <FieldLayout
             v-if="layout.data"
             :tabs="layout.data"
@@ -45,7 +45,7 @@
           <ErrorMessage v-if="error" class="mt-4" :message="__(error)" />
         </div>
       </div>
-      <div class="px-4 pb-7 pt-4 sm:px-6">
+      <div class="px-4 pb-5 pt-3 sm:px-6 sm:pb-6 border-t border-outline-gray-1">
         <div class="flex flex-row-reverse gap-2">
           <Button
             variant="solid"

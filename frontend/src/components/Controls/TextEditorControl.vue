@@ -1,15 +1,17 @@
 <template>
-  <TextEditor
-    :content="value"
-    :placeholder="placeholder"
-    :editable="!disabled"
-    :editor-class="editorClasses"
-    :fixed-menu="disabled ? false : fixedMenu"
-    :bubble-menu="bubbleMenu"
-    v-bind="$attrs"
-    @change="onContentChange"
-    @blur="onBlur"
-  />
+  <div class="w-full max-w-full overflow-x-hidden [&_.overflow-x-auto]:no-scrollbar [&_.overflow-x-auto]:scrollbar-none">
+    <TextEditor
+      :content="value"
+      :placeholder="placeholder"
+      :editable="!disabled"
+      :editor-class="editorClasses"
+      :fixed-menu="disabled ? false : fixedMenu"
+      :bubble-menu="bubbleMenu"
+      v-bind="$attrs"
+      @change="onContentChange"
+      @blur="onBlur"
+    />
+  </div>
 </template>
 
 <script setup>

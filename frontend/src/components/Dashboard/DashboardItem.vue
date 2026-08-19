@@ -63,15 +63,65 @@
     </div>
     <div
       v-else-if="item.type == 'axis_chart'"
-      class="h-full w-full rounded-md bg-surface-base shadow"
+      class="h-full w-full rounded-md bg-surface-base shadow flex flex-col p-4 sm:p-5"
     >
-      <AxisChart v-if="item.data" :config="item.data" />
+      <div v-if="item.data?.title" class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2.5">
+          <div
+            v-if="getSectionIcon(item.name)"
+            class="flex items-center justify-center size-8 rounded-lg shrink-0"
+            :class="getSectionIcon(item.name).bg"
+          >
+            <component
+              :is="getSectionIcon(item.name).icon"
+              class="size-4"
+              :class="getSectionIcon(item.name).color"
+            />
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-ink-gray-8">
+              {{ __(item.data.title) }}
+            </div>
+            <div v-if="item.data.subtitle" class="text-xs text-ink-gray-5">
+              {{ __(item.data.subtitle) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 min-h-0 w-full">
+        <AxisChart v-if="item.data" :config="getCleanChartConfig(item.data)" />
+      </div>
     </div>
     <div
       v-else-if="item.type == 'donut_chart'"
-      class="h-full w-full rounded-md bg-surface-base shadow overflow-hidden"
+      class="h-full w-full rounded-md bg-surface-base shadow flex flex-col p-4 sm:p-5 overflow-hidden"
     >
-      <DonutChart v-if="item.data" :config="item.data" />
+      <div v-if="item.data?.title" class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2.5">
+          <div
+            v-if="getSectionIcon(item.name)"
+            class="flex items-center justify-center size-8 rounded-lg shrink-0"
+            :class="getSectionIcon(item.name).bg"
+          >
+            <component
+              :is="getSectionIcon(item.name).icon"
+              class="size-4"
+              :class="getSectionIcon(item.name).color"
+            />
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-ink-gray-8">
+              {{ __(item.data.title) }}
+            </div>
+            <div v-if="item.data.subtitle" class="text-xs text-ink-gray-5">
+              {{ __(item.data.subtitle) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 min-h-0 w-full">
+        <DonutChart v-if="item.data" :config="getCleanChartConfig(item.data)" />
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +145,17 @@ import LucideTimer from '~icons/lucide/timer'
 import LucideTrendingUp from '~icons/lucide/trending-up'
 import LucideTrendingDown from '~icons/lucide/trending-down'
 import LucideMinus from '~icons/lucide/minus'
+
+import LucidePieChart from '~icons/lucide/pie-chart'
+import LucideLineChart from '~icons/lucide/line-chart'
+import LucideBriefcase from '~icons/lucide/briefcase'
+import LucideAlertTriangle from '~icons/lucide/alert-triangle'
+import LucideBarChart3 from '~icons/lucide/bar-chart-3'
+import LucideFilter from '~icons/lucide/filter'
+import LucideXCircle from '~icons/lucide/x-circle'
+import LucideShare2 from '~icons/lucide/share-2'
+import LucideMapPin from '~icons/lucide/map-pin'
+import LucideUserCheck from '~icons/lucide/user-check'
 
 const router = useRouter()
 
@@ -182,8 +243,98 @@ const cardMetaMap = {
   },
 }
 
+const sectionMetaMap = {
+  campaigns_by_stage: {
+    icon: LucidePieChart,
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    color: 'text-blue-600 dark:text-blue-400',
+  },
+  campaigns_by_execution_stage: {
+    icon: LucideBarChart3,
+    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
+    color: 'text-indigo-600 dark:text-indigo-400',
+  },
+  execution_trend: {
+    icon: LucideLineChart,
+    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+    color: 'text-emerald-600 dark:text-emerald-400',
+  },
+  team_workload: {
+    icon: LucideBriefcase,
+    bg: 'bg-purple-50 dark:bg-purple-950/40',
+    color: 'text-purple-600 dark:text-purple-400',
+  },
+  campaigns_at_risk: {
+    icon: LucideAlertTriangle,
+    bg: 'bg-rose-50 dark:bg-rose-950/40',
+    color: 'text-rose-600 dark:text-rose-400',
+  },
+  sales_trend: {
+    icon: LucideLineChart,
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    color: 'text-blue-600 dark:text-blue-400',
+  },
+  forecasted_revenue: {
+    icon: LucideBarChart3,
+    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
+    color: 'text-indigo-600 dark:text-indigo-400',
+  },
+  funnel_conversion: {
+    icon: LucideFilter,
+    bg: 'bg-cyan-50 dark:bg-cyan-950/40',
+    color: 'text-cyan-600 dark:text-cyan-400',
+  },
+  deals_by_stage_donut: {
+    icon: LucidePieChart,
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    color: 'text-blue-600 dark:text-blue-400',
+  },
+  lost_deal_reasons: {
+    icon: LucideXCircle,
+    bg: 'bg-rose-50 dark:bg-rose-950/40',
+    color: 'text-rose-600 dark:text-rose-400',
+  },
+  leads_by_source: {
+    icon: LucideShare2,
+    bg: 'bg-teal-50 dark:bg-teal-950/40',
+    color: 'text-teal-600 dark:text-teal-400',
+  },
+  deals_by_source: {
+    icon: LucideShare2,
+    bg: 'bg-teal-50 dark:bg-teal-950/40',
+    color: 'text-teal-600 dark:text-teal-400',
+  },
+  deals_by_territory: {
+    icon: LucideMapPin,
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    color: 'text-amber-600 dark:text-amber-400',
+  },
+  deals_by_salesperson: {
+    icon: LucideUserCheck,
+    bg: 'bg-violet-50 dark:bg-violet-950/40',
+    color: 'text-violet-600 dark:text-violet-400',
+  },
+}
+
 function getCardMeta(name) {
   return cardMetaMap[name] || null
+}
+
+function getSectionIcon(name) {
+  return sectionMetaMap[name] || {
+    icon: LucideBarChart3,
+    bg: 'bg-surface-gray-2',
+    color: 'text-ink-gray-6',
+  }
+}
+
+function getCleanChartConfig(data) {
+  if (!data) return {}
+  return {
+    ...data,
+    title: '',
+    subtitle: '',
+  }
 }
 
 function getTrendBadgeClass(data) {

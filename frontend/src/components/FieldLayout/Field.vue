@@ -57,9 +57,11 @@
       type="select"
       class="form-control"
       :class="field.prefix ? 'prefix' : ''"
-      :options="field.options"
+      :options="getOptions(field.options)"
       :placeholder="getPlaceholder(field)"
       :description="field.description"
+      side="bottom"
+      :offset="4"
       @update:modelValue="(e) => fieldChange(e, field)"
     >
       <template v-if="field.prefix" #prefix>
@@ -577,15 +579,28 @@ const getPlaceholder = (field) => {
 }
 
 const getOptions = (options) => {
+  if (!options) return []
+  let list = []
   if (Array.isArray(options)) {
-    return options
+    list = options
   } else if (typeof options === 'string') {
-    return options.split('\n').map((option) => {
-      return { label: option, value: option }
-    })
-  } else {
-    return []
+    list = options.split('\n')
   }
+  return list
+    .map((option) => {
+      if (typeof option === 'string') {
+        const trimmed = option.trim()
+        return trimmed ? { label: trimmed, value: trimmed } : null
+      } else if (option && typeof option === 'object') {
+        const label = (option.label ?? option.value ?? '').toString().trim()
+        const value = option.value ?? option.label ?? ''
+        return label !== '' || value !== ''
+          ? { ...option, label: label || value, value }
+          : null
+      }
+      return null
+    })
+    .filter(Boolean)
 }
 
 async function handleButtonClick(field) {
