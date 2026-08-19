@@ -1,7 +1,31 @@
 <template>
   <div class="flex-1 overflow-y-auto p-3">
+    <!-- Mobile 2-column Grid View -->
+    <div
+      v-if="!editing && isMobileView && items.length > 0"
+      class="grid grid-cols-2 gap-2.5 w-full pb-6"
+    >
+      <template v-for="(item, index) in items" :key="index">
+        <div
+          v-if="item.type !== 'spacer'"
+          :class="[
+            item.type === 'number_chart' ? 'col-span-1' : 'col-span-2',
+            'relative flex h-full w-full text-ink-gray-8',
+          ]"
+        >
+          <DashboardItem
+            :index="index"
+            :item="item"
+            :editing="false"
+            class="w-full [&_.max-h-\[140px\]]:px-3.5 [&_.max-h-\[140px\]]:py-3"
+          />
+        </div>
+      </template>
+    </div>
+
+    <!-- Desktop / Editing GridLayout -->
     <GridLayout
-      v-if="items.length > 0"
+      v-else-if="items.length > 0"
       class="h-fit w-full"
       :class="[editing ? 'mb-[20rem] !select-none' : '']"
       :cols="20"
@@ -53,6 +77,8 @@
 </template>
 <script setup>
 import { GridLayout } from 'frappe-ui'
+import DashboardItem from './DashboardItem.vue'
+import { isMobileView } from '@/composables/settings'
 
 defineProps({
   editing: { type: Boolean, default: false },

@@ -122,18 +122,19 @@ class CRMLead(Document):
 
 	def set_lead_name(self):
 		if not self.lead_name:
-			# Check for leads being created through data import
-			if not self.organization and not self.email and not self.flags.ignore_mandatory:
-				frappe.throw(_("A Lead requires either a person's name or an organization's name"))
+			if self.get("song"):
+				self.lead_name = self.song
 			elif self.organization:
 				self.lead_name = self.organization
+			elif self.get("client"):
+				self.lead_name = self.client
 			elif self.email:
 				self.lead_name = self.email.split("@")[0]
 			else:
 				self.lead_name = "Unnamed Lead"
 
 	def set_title(self):
-		self.title = self.organization or self.lead_name
+		self.title = self.get("song") or self.organization or self.get("client") or self.lead_name
 
 	def validate_email(self):
 		if self.email:
