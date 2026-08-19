@@ -10,11 +10,11 @@
     @keydown="handleKeydown"
   />
   <p
-    v-if="errorMessage || attrs.description"
+    v-if="errorMessage"
     class="mt-1.5"
     :class="[sizeClass, errorMessage ? 'text-ink-red-6' : 'text-ink-gray-5']"
   >
-    {{ errorMessage || attrs.description }}
+    {{ errorMessage }}
   </p>
 </template>
 

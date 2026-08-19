@@ -9,7 +9,7 @@ export function useTimelinePreferences() {
     () => _settings.doc?.crm_timeline_timestamp_format || 'Relative',
   )
   const sortOrder = computed(
-    () => _settings.doc?.crm_timeline_sort_order || 'Oldest First',
+    () => _settings.doc?.crm_timeline_sort_order || 'Newest First',
   )
 
   const showExactTimestamp = computed(() => timestampFormat.value === 'Exact')

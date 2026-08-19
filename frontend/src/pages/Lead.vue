@@ -493,19 +493,19 @@ const tabs = computed(() => {
       icon: ActivityIcon,
     },
     {
-      name: 'Emails',
-      label: __('Emails'),
-      icon: EmailIcon,
-    },
-    {
-      name: 'Comments',
-      label: __('Comments'),
-      icon: CommentIcon,
-    },
-    {
       name: 'Data',
       label: __('Data'),
       icon: DetailsIcon,
+    },
+    {
+      name: 'Tasks',
+      label: __('Deliverables'),
+      icon: TaskIcon,
+    },
+    {
+      name: 'Emails',
+      label: __('Emails'),
+      icon: EmailIcon,
     },
     {
       name: 'Calls',
@@ -513,19 +513,19 @@ const tabs = computed(() => {
       icon: PhoneIcon,
     },
     {
-      name: 'Tasks',
-      label: __('Tasks'),
-      icon: TaskIcon,
+      name: 'Attachments',
+      label: __('Attachments'),
+      icon: AttachmentIcon,
+    },
+    {
+      name: 'Comments',
+      label: __('Comments'),
+      icon: CommentIcon,
     },
     {
       name: 'Notes',
       label: __('Notes'),
       icon: NoteIcon,
-    },
-    {
-      name: 'Attachments',
-      label: __('Attachments'),
-      icon: AttachmentIcon,
     },
     {
       name: 'WhatsApp',
