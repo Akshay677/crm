@@ -81,7 +81,7 @@
                 :to="link.to"
                 :label="__(link.label)"
                 :active="activeItem === link.key"
-                @click="selectItem($event, link.key)"
+                @click="link.href ? openInNewTab(link.href) : selectItem($event, link.key)"
               >
                 <template #prefix>
                   <Icon v-if="typeof link.icon === 'string'" :icon="link.icon" class="size-4 text-ink-gray-7" />
@@ -206,6 +206,9 @@ import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import HelpIcon from '@/components/Icons/HelpIcon.vue'
 import Notifications from '@/components/Notifications.vue'
 import Settings from '@/components/Settings/Settings.vue'
+import LucideUsers from '~icons/lucide/users'
+import LucideVideo from '~icons/lucide/video'
+import LucideUserCheck from '~icons/lucide/user-check'
 import { viewsStore } from '@/stores/views'
 import {
   unreadNotificationsCount,
@@ -318,10 +321,13 @@ const allViews = computed(() => {
       views: [
         { label: 'Deals', icon: DealsIcon, key: 'Deals', to: { name: 'Deals' } },
         { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' } },
-        { label: 'Organizations', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
+        { label: 'Clients', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
         { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
         { label: 'Deliverables', icon: TaskIcon, key: 'Tasks', to: { name: 'Tasks' } },
         { label: 'Call Logs', icon: PhoneIcon, key: 'Call Logs', to: { name: 'Call Logs' } },
+        { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', href: '/app/team-profile' },
+        { label: 'Creator Pages', icon: markRaw(LucideUsers), key: 'Creator Pages', href: '/app/creator-page' },
+        { label: 'Content Assets', icon: markRaw(LucideVideo), key: 'Content Assets', href: '/app/content-asset' },
       ],
     },
   ]
@@ -412,6 +418,13 @@ function selectItem(event, key) {
   if (props.mobile) {
     mobileSidebarOpened.value = false
   }
+}
+
+function openInNewTab(href) {
+  if (props.mobile) {
+    mobileSidebarOpened.value = false
+  }
+  window.open(href, '_blank')
 }
 
 watch(
