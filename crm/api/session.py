@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 
-CRM_ALLOWED_ROLES = ["System Manager", "Sales Manager", "Sales User"]
+CRM_ALLOWED_ROLES = ["System Manager", "Sales Manager", "Sales User", "Project Manager"]
 
 
 def get_session_role_flags():
@@ -99,7 +99,7 @@ def get_users(include_all: bool = False):
 	# than serializing an IN list and gives identical results.
 	telephony_agents = set(frappe.get_all("CRM Telephony Agent", pluck="user"))
 
-	role_priority = ("System Manager", "Sales Manager", "Sales User", "Guest")
+	role_priority = ("System Manager", "Sales Manager", "Project Manager", "Sales User", "Guest")
 	crm_users = []
 
 	for user in users:
