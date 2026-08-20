@@ -110,11 +110,11 @@
               <div v-if="reworkLeaderboard.data?.by_campaign?.length" class="space-y-1">
                 <div
                   v-for="cmp in reworkLeaderboard.data.by_campaign.slice(0, 2)"
-                  :key="cmp.campaign"
+                  :key="cmp.name || cmp.campaign"
                   class="flex items-center justify-between text-xs cursor-pointer hover:bg-surface-gray-2 p-1 rounded transition-colors group"
-                  @click="openCampaign(cmp.campaign)"
+                  @click="openCampaign(cmp.name || cmp.campaign)"
                 >
-                  <span class="font-medium text-ink-gray-8 truncate max-w-[120px] group-hover:text-primary-600">{{ cmp.campaign }}</span>
+                  <span class="font-medium text-ink-gray-8 truncate max-w-[120px] group-hover:text-primary-600">{{ cmp.song || cmp.campaign }}</span>
                   <span class="px-1.5 py-0.5 rounded text-[11px] bg-rose-50 text-rose-700 font-semibold shrink-0">
                     {{ cmp.rework_rounds }} {{ __('rounds') }}
                   </span>
@@ -332,7 +332,7 @@
 </template>
 
 <script setup>
-import { Dialog, Button, createResource } from 'frappe-ui'
+import { Dialog, Button, createResource, call } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
 
@@ -385,10 +385,25 @@ const filteredCapacity = computed(() => {
   return data.filter((row) => row.role_type === selectedRole.value)
 })
 
-function openCampaign(campaignId) {
+async function openCampaign(campaignId) {
   if (!campaignId) return
   show.value = false
-  router.push({ name: 'Lead', params: { leadId: campaignId } })
+  if (campaignId.startsWith('CMP-') || campaignId.startsWith('CRM-')) {
+    router.push({ name: 'Lead', params: { leadId: campaignId } })
+    return
+  }
+
+  try {
+    const res = await call('frappe.client.get_value', {
+      doctype: 'CRM Lead',
+      filters: { custom_song: campaignId },
+      fieldname: 'name',
+    })
+    const leadId = res?.name || campaignId
+    router.push({ name: 'Lead', params: { leadId } })
+  } catch {
+    router.push({ name: 'Lead', params: { leadId: campaignId } })
+  }
 }
 
 function getBandBadgeClass(band) {
