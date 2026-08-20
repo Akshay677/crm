@@ -7,14 +7,23 @@
       <template #right-header>
         <Button
           v-if="!editing"
-          :label="__('Refresh')"
+          :label="isMobileView ? '' : __('Team Capacity')"
+          :iconLeft="LucideBriefcase"
+          :tooltip="__('Team Capacity & Bandwidth')"
+          @click="showTeamCapacityModal = true"
+        />
+        <Button
+          v-if="!editing"
+          :label="isMobileView ? '' : __('Refresh')"
           :iconLeft="LucideRefreshCcw"
+          :tooltip="__('Refresh Dashboard')"
           @click="dashboardItems.reload"
         />
         <Button
           v-if="!editing && isAdmin()"
-          :label="__('Edit')"
+          :label="isMobileView ? '' : __('Edit')"
           :iconLeft="LucidePenLine"
+          :tooltip="__('Edit Dashboard')"
           @click="enableEditing"
         />
         <Button
@@ -131,18 +140,25 @@
     v-model="showAddChartModal"
     v-model:items="dashboardItems.data"
   />
+  <TeamCapacityModal
+    v-if="showTeamCapacityModal"
+    v-model:open="showTeamCapacityModal"
+  />
 </template>
 
 <script setup lang="ts">
 import AddChartModal from '@/components/Dashboard/AddChartModal.vue'
+import TeamCapacityModal from '@/components/Modals/TeamCapacityModal.vue'
 import LucideRefreshCcw from '~icons/lucide/refresh-ccw'
 import LucideUndo2 from '~icons/lucide/undo-2'
 import LucidePenLine from '~icons/lucide/pen-line'
+import LucideBriefcase from '~icons/lucide/briefcase'
 import DashboardGrid from '@/components/Dashboard/DashboardGrid.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ViewBreadcrumbs from '@/components/ViewBreadcrumbs.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Link from '@/components/Controls/Link.vue'
+import { isMobileView } from '@/composables/settings'
 import { usersStore } from '@/stores/users'
 import { copy } from '@/utils'
 import {
@@ -168,6 +184,7 @@ const showDatePicker = ref(false)
 const datePickerRef = ref(null)
 const preset = ref('Last 30 Days')
 const showAddChartModal = ref(false)
+const showTeamCapacityModal = ref(false)
 
 const filters = reactive({
   period: getLastXDays(),

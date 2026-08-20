@@ -1,0 +1,277 @@
+<template>
+  <Dialog v-model:open="show" :size="'4xl'">
+    <template #body>
+      <div class="bg-surface-elevation-1 p-4 sm:p-6 overflow-x-hidden">
+        <!-- Modal Header -->
+        <div class="flex items-start justify-between pb-3 sm:pb-4 border-b border-outline-gray-1">
+          <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="flex items-center justify-center size-8 sm:size-10 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 shrink-0">
+              <LucideBriefcase class="size-4 sm:size-5" />
+            </div>
+            <div>
+              <h3 class="text-base sm:text-2xl font-bold text-ink-gray-9">
+                {{ __('Team Capacity & Bandwidth') }}
+              </h3>
+              <p class="text-[11px] sm:text-sm text-ink-gray-5">
+                {{ __('Workload scores, available bandwidth, and workflow bottlenecks') }}
+              </p>
+            </div>
+          </div>
+          <Button variant="ghost" icon="lucide-x" class="w-8" @click="show = false" />
+        </div>
+
+        <div class="max-h-[72vh] overflow-y-auto overflow-x-hidden py-4 space-y-6">
+          <!-- Top Insight Cards (The 4 Objectives) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <!-- 1. Who can take next campaign -->
+            <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                <LucideUserCheck class="size-4" />
+                <span>{{ __('Who Takes Next Campaign') }}</span>
+              </div>
+              <div v-if="whoCanTake.data?.length" class="space-y-1">
+                <div
+                  v-for="person in whoCanTake.data.slice(0, 2)"
+                  :key="person.user"
+                  class="flex items-center justify-between text-xs"
+                >
+                  <span class="font-medium text-ink-gray-8">{{ person.full_name }} ({{ person.role_type }})</span>
+                  <span class="px-1.5 py-0.5 rounded text-[11px] bg-emerald-50 text-emerald-700 font-semibold">
+                    {{ person.band }}
+                  </span>
+                </div>
+              </div>
+              <div v-else class="text-xs text-ink-gray-5">
+                {{ __('No available executors found') }}
+              </div>
+            </div>
+
+            <!-- 2. Where work is stuck (Stage time) -->
+            <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                <LucideClock class="size-4" />
+                <span>{{ __('Where Work Is Stuck') }}</span>
+              </div>
+              <div v-if="timeInStage.data?.length" class="space-y-1">
+                <div
+                  v-for="stg in timeInStage.data.slice(0, 2)"
+                  :key="stg.stage"
+                  class="flex items-center justify-between text-xs"
+                >
+                  <span class="font-medium text-ink-gray-8 truncate max-w-[120px]">{{ stg.stage }}</span>
+                  <span class="text-ink-gray-5 text-[11px] font-medium">
+                    avg {{ stg.avg_hours }} hrs
+                  </span>
+                </div>
+              </div>
+              <div v-else class="text-xs text-ink-gray-5">
+                {{ __('No stage bottleneck data yet') }}
+              </div>
+            </div>
+
+            <!-- 3. Rework Leaderboard (Edits bouncing) -->
+            <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">
+                <LucideAlertTriangle class="size-4" />
+                <span>{{ __('Rework Leaderboard') }}</span>
+              </div>
+              <div v-if="reworkLeaderboard.data?.by_campaign?.length" class="space-y-1">
+                <div
+                  v-for="cmp in reworkLeaderboard.data.by_campaign.slice(0, 2)"
+                  :key="cmp.campaign"
+                  class="flex items-center justify-between text-xs"
+                >
+                  <span class="font-medium text-ink-gray-8 truncate max-w-[120px]">{{ cmp.campaign }}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[11px] bg-rose-50 text-rose-700 font-semibold">
+                    {{ cmp.rework_rounds }} {{ __('rounds') }}
+                  </span>
+                </div>
+              </div>
+              <div v-else class="text-xs text-ink-gray-5">
+                {{ __('No rework rounds recorded') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Role Filter Tabs -->
+          <div class="flex items-center justify-between flex-wrap gap-2 pt-2">
+            <div class="flex items-center gap-1.5 bg-surface-gray-2 p-1 rounded-lg">
+              <button
+                v-for="role in ['All', 'Project Manager', 'Editor', 'Executor']"
+                :key="role"
+                class="px-3 py-1 text-xs font-medium rounded-md transition-all"
+                :class="selectedRole === role ? 'bg-surface-base text-ink-gray-9 shadow-sm' : 'text-ink-gray-5 hover:text-ink-gray-8'"
+                @click="selectedRole = role"
+              >
+                {{ __(role) }}
+              </button>
+            </div>
+            <div class="text-xs text-ink-gray-5">
+              {{ teamCapacity.data?.length || 0 }} {{ __('Team Members') }}
+            </div>
+          </div>
+
+          <!-- Team Capacity Table -->
+          <div class="border border-outline-gray-1 rounded-xl overflow-hidden bg-surface-base">
+            <div v-if="teamCapacity.loading" class="p-8 text-center text-sm text-ink-gray-5">
+              {{ __('Loading capacity data...') }}
+            </div>
+            <div v-else-if="!filteredCapacity.length" class="p-8 text-center text-sm text-ink-gray-5">
+              {{ __('No team profiles found for this role.') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-surface-gray-2 text-ink-gray-6 border-b border-outline-gray-1 font-semibold uppercase tracking-wider text-[11px]">
+                  <tr>
+                    <th class="py-3 px-4">{{ __('Team Member') }}</th>
+                    <th class="py-3 px-3 text-center">{{ __('Active Campaigns') }}</th>
+                    <th class="py-3 px-3 text-center">{{ __('Deliverables (Done / Total)') }}</th>
+                    <th class="py-3 px-3 text-center">{{ __('Pending') }}</th>
+                    <th class="py-3 px-3 text-center">{{ __('Urgent (48h)') }}</th>
+                    <th class="py-3 px-3">{{ __('Next Deadline') }}</th>
+                    <th class="py-3 px-3 text-center">{{ __('Daily Cap') }}</th>
+                    <th class="py-3 px-4 text-center">{{ __('Workload Status') }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-gray-1">
+                  <tr
+                    v-for="row in filteredCapacity"
+                    :key="row.user"
+                    class="hover:bg-surface-gray-1 transition-colors"
+                  >
+                    <!-- Name & Role -->
+                    <td class="py-3 px-4">
+                      <div class="font-semibold text-ink-gray-9 text-sm">{{ row.full_name }}</div>
+                      <div class="text-[11px] text-ink-gray-5">{{ row.role_type || __('Team Member') }}</div>
+                    </td>
+
+                    <!-- Active Campaigns -->
+                    <td class="py-3 px-3 text-center font-medium text-ink-gray-8">
+                      {{ row.active_campaigns }}
+                    </td>
+
+                    <!-- Deliverables (Done / Total) -->
+                    <td class="py-3 px-3 text-center text-ink-gray-8">
+                      <span class="font-semibold text-emerald-600">{{ row.completed }}</span>
+                      <span class="text-ink-gray-4"> / {{ row.assigned }}</span>
+                    </td>
+
+                    <!-- Pending -->
+                    <td class="py-3 px-3 text-center font-semibold text-ink-gray-9">
+                      {{ row.pending }}
+                    </td>
+
+                    <!-- Urgent 48h -->
+                    <td class="py-3 px-3 text-center">
+                      <span
+                        v-if="row.urgent > 0"
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/40"
+                      >
+                        <LucideFlame class="size-3 text-rose-500 shrink-0" />
+                        <span>{{ row.urgent }}</span>
+                      </span>
+                      <span v-else class="text-ink-gray-4">-</span>
+                    </td>
+
+                    <!-- Next Deadline -->
+                    <td class="py-3 px-3 text-ink-gray-7 whitespace-nowrap">
+                      {{ row.next_deadline || __('None') }}
+                    </td>
+
+                    <!-- Daily Capacity -->
+                    <td class="py-3 px-3 text-center text-ink-gray-6">
+                      {{ row.daily_capacity }}/day
+                    </td>
+
+                    <!-- Workload Status Band -->
+                    <td class="py-3 px-4 text-center">
+                      <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold" :class="getBandBadgeClass(row.band)">
+                        <span class="size-1.5 rounded-full" :class="getBandDotClass(row.band)"></span>
+                        <span>{{ __(row.band) }}</span>
+                        <span class="text-[10px] opacity-75 font-normal">({{ row.workload_score }})</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </Dialog>
+</template>
+
+<script setup>
+import { Dialog, Button, createResource } from 'frappe-ui'
+import { ref, computed } from 'vue'
+
+import LucideBriefcase from '~icons/lucide/briefcase'
+import LucideUserCheck from '~icons/lucide/user-check'
+import LucideClock from '~icons/lucide/clock'
+import LucideAlertTriangle from '~icons/lucide/alert-triangle'
+import LucideFlame from '~icons/lucide/flame'
+
+const show = defineModel('open', { default: false })
+const selectedRole = ref('All')
+
+// 1. Fetch Team Capacity Breakdown
+const teamCapacity = createResource({
+  url: 'music_crm.capacity.get_team_capacity',
+  auto: true,
+})
+
+// 2. Fetch Who Can Take Next Campaign
+const whoCanTake = createResource({
+  url: 'music_crm.capacity.who_can_take_next',
+  auto: true,
+})
+
+// 3. Fetch Stage Bottlenecks
+const timeInStage = createResource({
+  url: 'music_crm.capacity.time_in_stage',
+  auto: true,
+})
+
+// 4. Fetch Rework Leaderboard
+const reworkLeaderboard = createResource({
+  url: 'music_crm.capacity.rework_leaderboard',
+  auto: true,
+})
+
+const filteredCapacity = computed(() => {
+  const data = teamCapacity.data || []
+  if (selectedRole.value === 'All') return data
+  return data.filter((row) => row.role_type === selectedRole.value)
+})
+
+function getBandBadgeClass(band) {
+  switch (band) {
+    case 'Available':
+      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+    case 'Healthy':
+      return 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+    case 'Loaded':
+      return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+    case 'Overloaded':
+      return 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
+    default:
+      return 'bg-surface-gray-2 text-ink-gray-6'
+  }
+}
+
+function getBandDotClass(band) {
+  switch (band) {
+    case 'Available':
+      return 'bg-emerald-500'
+    case 'Healthy':
+      return 'bg-blue-500'
+    case 'Loaded':
+      return 'bg-amber-500'
+    case 'Overloaded':
+      return 'bg-rose-500'
+    default:
+      return 'bg-gray-400'
+  }
+}
+</script>

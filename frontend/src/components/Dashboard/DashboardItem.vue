@@ -65,7 +65,7 @@
       v-else-if="item.type == 'axis_chart'"
       class="h-full w-full rounded-md bg-surface-base shadow flex flex-col p-4 sm:p-5"
     >
-      <div v-if="item.data?.title" class="flex items-center justify-between mb-2">
+      <div v-if="item.data?.title" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
         <div class="flex items-center gap-2.5">
           <div
             v-if="getSectionIcon(item.name)"
@@ -87,11 +87,24 @@
             </div>
           </div>
         </div>
+        <Button
+          v-if="item.name === 'team_workload' && !editing"
+          variant="subtle"
+          size="sm"
+          class="self-start sm:self-auto text-xs"
+          :label="__('View Bandwidth & Capacity')"
+          :iconRight="LucideArrowRight"
+          @click="showCapacityModal = true"
+        />
       </div>
       <div class="flex-1 min-h-0 w-full">
         <AxisChart v-if="item.data" :config="getCleanChartConfig(item.data)" />
       </div>
     </div>
+    <TeamCapacityModal
+      v-if="showCapacityModal"
+      v-model:open="showCapacityModal"
+    />
     <div
       v-else-if="item.type == 'donut_chart'"
       class="h-full w-full rounded-md bg-surface-base shadow flex flex-col p-4 sm:p-5 overflow-hidden"
@@ -126,8 +139,11 @@
   </div>
 </template>
 <script setup>
-import { AxisChart, DonutChart, NumberChart, Tooltip } from 'frappe-ui'
+import { AxisChart, DonutChart, NumberChart, Tooltip, Button } from 'frappe-ui'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
+
+import TeamCapacityModal from '@/components/Modals/TeamCapacityModal.vue'
 
 import LucideLayers from '~icons/lucide/layers'
 import LucideActivity from '~icons/lucide/activity'
@@ -156,8 +172,10 @@ import LucideXCircle from '~icons/lucide/x-circle'
 import LucideShare2 from '~icons/lucide/share-2'
 import LucideMapPin from '~icons/lucide/map-pin'
 import LucideUserCheck from '~icons/lucide/user-check'
+import LucideArrowRight from '~icons/lucide/arrow-right'
 
 const router = useRouter()
+const showCapacityModal = ref(false)
 
 const props = defineProps({
   index: { type: Number, required: true },
