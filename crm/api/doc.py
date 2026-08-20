@@ -835,3 +835,16 @@ def delete_bulk_docs(doctype: str, items: str | list, delete_linked: bool = Fals
 	else:
 		delete_bulk(doctype, items)
 	return "success"
+
+@frappe.whitelist()
+def get_campaign_counts():
+	def get_count(filters):
+		res = frappe.get_list("CRM Lead", filters=filters, fields=[{"COUNT": "name"}])
+		return list(res[0].values())[0] if res else 0
+
+	return {
+		"Total Campaigns": get_count({"converted": 0}),
+		"Active Campaigns": get_count({"converted": 0, "status": ["not in", ["Completed", "Cancelled"]]}),
+		"Completed Campaigns": get_count({"converted": 0, "status": "Completed"}),
+		"Pending Campaigns": get_count({"converted": 0, "status": "Pending"}),
+	}

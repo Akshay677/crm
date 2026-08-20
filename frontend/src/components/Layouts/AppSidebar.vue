@@ -56,25 +56,22 @@
             :opened="section.opened"
           >
             <template #header="{ opened, hide, toggle }">
-              <SidebarItem
+              <div
                 v-if="!hide"
-                :label="__(section.name)"
-                class="select-none"
-                :class="!isCollapsed && 'cursor-pointer'"
+                class="group flex cursor-pointer items-center justify-between px-2 py-1.5 text-sm font-medium text-ink-gray-5 transition-colors hover:text-ink-gray-9"
                 @click="toggle()"
               >
-                <template #prefix v-if="section.name === 'Campaigns'">
-                  <MegaphoneIcon class="size-4 text-ink-gray-7" />
-                </template>
-                <template #suffix>
-                  <ChevronDownIcon
-                    class="h-4 w-4 text-ink-gray-5 transition-transform duration-200"
-                    :class="{ '-rotate-90': !opened }"
-                  />
-                </template>
-              </SidebarItem>
+                <div class="flex items-center gap-2">
+                  <MegaphoneIcon v-if="section.name === 'Campaigns'" class="size-4" />
+                  <span>{{ __(section.name) }}</span>
+                </div>
+                <ChevronDownIcon
+                  class="size-4 transition-transform duration-200"
+                  :class="{ '-rotate-90': !opened }"
+                />
+              </div>
             </template>
-            <nav class="flex flex-col gap-1" :class="{ 'ml-4': !section.hideLabel }">
+            <nav class="flex flex-col gap-1" :class="{ 'ml-2': !section.hideLabel }">
               <SidebarItem
                 v-for="link in section.views"
                 :key="link.key"
@@ -95,6 +92,13 @@
                 >
                   <span class="truncate text-sm">{{ __(link.label) }}</span>
                 </Tooltip>
+                <template #suffix v-if="campaignCounts.data?.[link.label] !== undefined">
+                  <Badge
+                    class="mr-2"
+                    :label="campaignCounts.data[link.label]"
+                    variant="subtle"
+                  />
+                </template>
               </SidebarItem>
             </nav>
           </CollapsibleSection>
@@ -220,7 +224,8 @@ import {
 } from '@/composables/settings'
 import { showChangePasswordModal } from '@/composables/modals'
 import { useBroadcast } from '@/composables/useBroadcast.js'
-import { call, Sidebar, SidebarItem, SidebarLabel, Tooltip } from 'frappe-ui'
+import { globalStore } from '@/stores/global'
+import { call, Sidebar, SidebarItem, SidebarLabel, Tooltip, Badge, createResource } from 'frappe-ui'
 import {
   SignupBanner,
   TrialBanner,
@@ -249,6 +254,27 @@ const { toggle: toggleNotificationPanel } = notificationsStore()
 const { capture } = useTelemetry()
 const { clearDemoData, isDemoDataCreated } = useDemoData()
 const { send } = useBroadcast()
+
+const campaignCounts = createResource({
+  url: 'crm.api.doc.get_campaign_counts',
+  auto: true,
+})
+
+onMounted(() => {
+  const { $socket } = globalStore()
+  if ($socket) {
+    $socket.on('list_update', (data) => {
+      if (data && data.doctype === 'CRM Lead') {
+        campaignCounts.reload()
+      }
+    })
+    $socket.on('doc_update', (data) => {
+      if (data && data.doctype === 'CRM Lead') {
+        campaignCounts.reload()
+      }
+    })
+  }
+})
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 
@@ -387,6 +413,11 @@ function getIcon(routeName, icon) {
 
 // A saved view's key is its name; a plain nav item's key is its route name.
 function currentRouteKey() {
+  if (route.name === 'Leads' && !route.query.view) return getCampaignView('Total Campaigns')
+  if (route.name === 'Lead') return route.query.view || getCampaignView('Total Campaigns')
+  if (route.name === 'Deal') return 'Deals'
+  if (route.name === 'Contact') return 'Contacts'
+  if (route.name === 'Organization') return 'Organizations'
   return route.query.view || route.name
 }
 

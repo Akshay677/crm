@@ -367,7 +367,7 @@ import {
   FeatherIcon,
   usePageMeta,
 } from 'frappe-ui'
-import { computed, ref, watch, h, markRaw } from 'vue'
+import { computed, ref, watch, h, markRaw, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { isMobileView } from '@/composables/settings'
 import Draggable from 'vuedraggable'
@@ -388,7 +388,7 @@ const props = defineProps({
 })
 
 const { brand } = getSettings()
-const { $dialog } = globalStore()
+const { $dialog, $socket } = globalStore()
 const { reload: reloadView, getDefaultView, getView } = viewsStore()
 const { isManager } = usersStore()
 
@@ -546,7 +546,6 @@ function getParams() {
 list.value = createResource({
   url: 'crm.api.doc.get_data',
   params: getParams(),
-  cache: [props.doctype, route.query.view, route.params.viewType],
   auto: true,
   onSuccess(data) {
     let cv = getView(route.query.view, route.params.viewType, props.doctype)
@@ -580,10 +579,30 @@ list.value.params = getParams()
 const isLoading = computed(() => list.value?.loading)
 
 function reload() {
-  if (isLoading.value) return
   list.value.params = getParams()
   list.value.reload()
 }
+
+function onListUpdate(data) {
+  if (data && data.doctype === props.doctype) {
+    reload()
+  }
+}
+
+onMounted(() => {
+  reload()
+  if ($socket) {
+    $socket.on('list_update', onListUpdate)
+    $socket.on('doc_update', onListUpdate)
+  }
+})
+
+onBeforeUnmount(() => {
+  if ($socket) {
+    $socket.off('list_update', onListUpdate)
+    $socket.off('doc_update', onListUpdate)
+  }
+})
 
 const showExportDialog = ref(false)
 const export_type = ref('Excel')

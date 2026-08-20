@@ -90,8 +90,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-26 12:55:16.304522",
- "modified_by": "shariq@frappe.io",
+ "modified": "2026-08-20 17:05:50.731858",
+ "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Task",
  "naming_rule": "Autoincrement",
@@ -130,6 +130,42 @@
    "read": 1,
    "report": 1,
    "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Project Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Editor",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Executor",
    "share": 1,
    "write": 1
   }

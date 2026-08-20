@@ -14,21 +14,7 @@ class CRMDealStatus(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		color: DF.Literal[
-			"black",
-			"gray",
-			"blue",
-			"green",
-			"red",
-			"pink",
-			"orange",
-			"amber",
-			"yellow",
-			"cyan",
-			"teal",
-			"violet",
-			"purple",
-		]
+		color: DF.Literal["black", "gray", "blue", "green", "red", "pink", "orange", "amber", "yellow", "cyan", "teal", "violet", "purple"]
 		deal_status: DF.Data
 		position: DF.Int
 		probability: DF.Percent
