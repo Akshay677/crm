@@ -76,9 +76,10 @@ const apps = createResource({
 })
 
 const dropdownItems = computed(() => {
-  if (!settings.value?.dropdown_items) return []
-
-  let items = settings.value.dropdown_items
+  let items = settings.value?.dropdown_items || [
+    { name1: 'about', label: 'About', icon: 'info', is_standard: 1 },
+    { name1: 'logout', label: 'Log out', icon: 'log-out', is_standard: 1 },
+  ]
 
   let _dropdownItems = [
     {
@@ -91,9 +92,10 @@ const dropdownItems = computed(() => {
   items.forEach((item) => {
     if (item.hidden) return
     if (item.type !== 'Separator') {
-      _dropdownItems[_dropdownItems.length - 1].items.push(
-        dropdownItemObj(item),
-      )
+      const obj = dropdownItemObj(item)
+      if (obj) {
+        _dropdownItems[_dropdownItems.length - 1].items.push(obj)
+      }
     } else {
       _dropdownItems.push({
         group: '',
