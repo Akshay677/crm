@@ -85,6 +85,9 @@
             { label: __('Admin'), value: 'System Manager' },
             { label: __('Manager'), value: 'Sales Manager' },
             { label: __('Sales User'), value: 'Sales User' },
+            { label: __('Project Manager'), value: 'Project Manager' },
+            { label: __('Editor'), value: 'Editor' },
+            { label: __('Executor'), value: 'Executor' },
           ]"
         />
       </div>
@@ -135,7 +138,13 @@
                       ? 'shield'
                       : user.role === 'Sales Manager'
                         ? 'briefcase'
-                        : 'user-check',
+                        : user.role === 'Project Manager'
+                          ? 'users'
+                          : user.role === 'Editor'
+                            ? 'edit'
+                            : user.role === 'Executor'
+                              ? 'zap'
+                              : 'user-check',
                 }"
                 placement="right"
               />
@@ -193,6 +202,9 @@ const roleMap = {
   'System Manager': __('Admin'),
   'Sales Manager': __('Manager'),
   'Sales User': __('Sales User'),
+  'Project Manager': __('Project Manager'),
+  'Editor': __('Editor'),
+  'Executor': __('Executor'),
 }
 
 const usersList = computed(() => {
@@ -256,6 +268,39 @@ function getDropdownOptions(user) {
           selected: user.role === 'Sales User',
         }),
       onClick: () => updateRole(user, 'Sales User'),
+    },
+    {
+      label: __('Project Manager'),
+      component: () =>
+        DropdownOption({
+          option: __('Project Manager'),
+          icon: 'users',
+          selected: user.role === 'Project Manager',
+        }),
+      onClick: () => updateRole(user, 'Project Manager'),
+      condition: () => isAdmin(),
+    },
+    {
+      label: __('Editor'),
+      component: () =>
+        DropdownOption({
+          option: __('Editor'),
+          icon: 'edit',
+          selected: user.role === 'Editor',
+        }),
+      onClick: () => updateRole(user, 'Editor'),
+      condition: () => isAdmin(),
+    },
+    {
+      label: __('Executor'),
+      component: () =>
+        DropdownOption({
+          option: __('Executor'),
+          icon: 'zap',
+          selected: user.role === 'Executor',
+        }),
+      onClick: () => updateRole(user, 'Executor'),
+      condition: () => isAdmin(),
     },
   ]
 

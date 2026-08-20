@@ -154,12 +154,18 @@ const description = computed(() => {
       'Can manage and invite new users, and create public & private views (reports).',
     'Sales User':
       'Can work with leads and deals and create private views (reports).',
+    'Project Manager': 'Can manage projects and related entities.',
+    'Editor': 'Can edit records and content.',
+    'Executor': 'Can execute and complete assigned tasks.',
   }[role.value]
 })
 
 const roleOptions = computed(() => {
   return [
     { value: 'Sales User', label: __('Sales User') },
+    ...(isAdmin() ? [{ value: 'Project Manager', label: __('Project Manager') }] : []),
+    ...(isAdmin() ? [{ value: 'Editor', label: __('Editor') }] : []),
+    ...(isAdmin() ? [{ value: 'Executor', label: __('Executor') }] : []),
     ...(isAdmin() ? [{ value: 'Sales Manager', label: __('Manager') }] : []),
     ...(isAdmin() ? [{ value: 'System Manager', label: __('Admin') }] : []),
   ]
@@ -169,6 +175,9 @@ const roleMap = {
   'Sales User': __('Sales User'),
   'Sales Manager': __('Manager'),
   'System Manager': __('Admin'),
+  'Project Manager': __('Project Manager'),
+  'Editor': __('Editor'),
+  'Executor': __('Executor'),
 }
 
 const inviteByEmail = createResource({

@@ -78,7 +78,7 @@ def update_user_role(user: str, new_role: str):
 	frappe.only_for(["System Manager", "Sales Manager"], True)
 	is_system_manager = "System Manager" in frappe.get_roles()
 
-	if new_role not in ["System Manager", "Sales Manager", "Sales User"]:
+	if new_role not in ["System Manager", "Sales Manager", "Sales User", "Project Manager", "Editor", "Executor"]:
 		frappe.throw(_("Cannot assign this role"))
 
 	user_doc = frappe.get_doc("User", user)
@@ -95,11 +95,11 @@ def update_user_role(user: str, new_role: str):
 		frappe.throw(_("Only System Managers can assign the Sales Manager role"), frappe.PermissionError)
 
 	if new_role == "System Manager":
-		user_doc.append_roles("System Manager", "Sales Manager", "Sales User")
+		user_doc.append_roles("System Manager", "Sales Manager", "Sales User", "Project Manager", "Editor", "Executor")
 		user_doc.set("block_modules", [])
 	if new_role == "Sales Manager":
 		user_doc.append_roles("Sales Manager", "Sales User")
-		remove_roles(user_doc, "System Manager")
+		remove_roles(user_doc, "System Manager", "Project Manager", "Editor", "Executor")
 	if new_role == "Sales User":
 		node = frappe.db.get_value(
 			"CRM Sales Hierarchy", {"user": user}, ["name", "reports_to"], as_dict=True
@@ -111,7 +111,12 @@ def update_user_role(user: str, new_role: str):
 					_("Remove this user from the sales hierarchy before changing their role to Sales User")
 				)
 		user_doc.append_roles("Sales User")
-		remove_roles(user_doc, "Sales Manager", "System Manager")
+		remove_roles(user_doc, "Sales Manager", "System Manager", "Project Manager", "Editor", "Executor")
+		update_module_in_user(user_doc, "FCRM")
+	if new_role in ["Project Manager", "Editor", "Executor"]:
+		user_doc.append_roles(new_role)
+		roles_to_remove = [r for r in ["System Manager", "Sales Manager", "Sales User", "Project Manager", "Editor", "Executor"] if r != new_role]
+		remove_roles(user_doc, *roles_to_remove)
 		update_module_in_user(user_doc, "FCRM")
 
 	user_doc.save(ignore_permissions=True)
@@ -148,6 +153,12 @@ def remove_crm_roles_from_user(user: str):
 	if "System Manager" in roles and current_user_is_system_manager:
 		remove_roles(user_doc, "System Manager")
 		update_module_in_user(user_doc, "FCRM")
+	if "Project Manager" in roles:
+		remove_roles(user_doc, "Project Manager")
+	if "Editor" in roles:
+		remove_roles(user_doc, "Editor")
+	if "Executor" in roles:
+		remove_roles(user_doc, "Executor")
 
 	user_doc.save(ignore_permissions=True)
 
