@@ -56,24 +56,25 @@
             :opened="section.opened"
           >
             <template #header="{ opened, hide, toggle }">
-              <SidebarLabel
+              <SidebarItem
                 v-if="!hide"
-                divider
-                class="mb-1 mt-4 select-none"
+                :label="__(section.name)"
+                class="select-none"
                 :class="!isCollapsed && 'cursor-pointer'"
                 @click="toggle()"
               >
-                <span class="flex items-center gap-1.5">
-                  <span
-                    class="lucide-chevron-right -ml-0.5 size-4 shrink-0 text-ink-gray-9 transition-transform duration-300 ease-in-out"
-                    :class="{ 'rotate-90': opened }"
-                    aria-hidden="true"
+                <template #prefix v-if="section.name === 'Campaigns'">
+                  <MegaphoneIcon class="size-4 text-ink-gray-7" />
+                </template>
+                <template #suffix>
+                  <ChevronDownIcon
+                    class="h-4 w-4 text-ink-gray-5 transition-transform duration-200"
+                    :class="{ '-rotate-90': !opened }"
                   />
-                  <span class="truncate">{{ __(section.name) }}</span>
-                </span>
-              </SidebarLabel>
+                </template>
+              </SidebarItem>
             </template>
-            <nav class="flex flex-col gap-1">
+            <nav class="flex flex-col gap-1" :class="{ 'ml-4': !section.hideLabel }">
               <SidebarItem
                 v-for="link in section.views"
                 :key="link.key"
@@ -83,7 +84,8 @@
                 @click="selectItem($event, link.key)"
               >
                 <template #prefix>
-                  <Icon :icon="link.icon" class="size-4 text-ink-gray-7" />
+                  <Icon v-if="typeof link.icon === 'string'" :icon="link.icon" class="size-4 text-ink-gray-7" />
+                  <component v-else :is="link.icon" class="size-4 text-ink-gray-7" />
                 </template>
                 <Tooltip
                   :text="__(link.label)"
@@ -184,6 +186,13 @@ import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Icon from '@/components/Icon.vue'
 import PinIcon from '@/components/Icons/PinIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
+import UsersIcon from '~icons/lucide/users'
+import ListIcon from '~icons/lucide/list'
+import ActivityIcon from '~icons/lucide/activity'
+import CheckCircleIcon from '~icons/lucide/check-circle'
+import ClockIcon from '~icons/lucide/clock'
+import ChevronDownIcon from '~icons/lucide/chevron-down'
+import MegaphoneIcon from '~icons/lucide/megaphone'
 import SquareAsterisk from '@/components/Icons/SquareAsterisk.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
@@ -250,77 +259,84 @@ const isCollapsed = computed(() => isSidebarCollapsed.value && !props.mobile)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-const links = [
-  {
-    label: 'Dashboard',
-    icon: LucideLayoutDashboard,
-    to: 'Dashboard',
-    condition: () => !props.mobile,
-  },
-  {
-    label: 'Leads',
-    icon: LeadsIcon,
-    to: 'Leads',
-  },
-  {
-    label: 'Deals',
-    icon: DealsIcon,
-    to: 'Deals',
-  },
-  {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: 'Organizations',
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
-  {
-    label: 'Notes',
-    icon: NoteIcon,
-    to: 'Notes',
-  },
-  {
-    label: 'Tasks',
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: 'Call Logs',
-    icon: PhoneIcon,
-    to: 'Call Logs',
-  },
-]
+const getCampaignView = (label) => {
+  const view = getPublicViews().find((v) => v.label === label)
+  return view ? view.name : label
+}
 
 const allViews = computed(() => {
   let _views = [
     {
-      name: 'All Views',
+      name: 'Main',
       hideLabel: true,
       opened: true,
-      views: links
-        .filter((link) => {
-          if (link.condition) {
-            return link.condition()
-          }
-          return true
-        })
-        .map((link) => ({
-          label: link.label,
-          icon: link.icon,
-          key: link.to,
-          to: { name: link.to },
-        })),
+      views: [
+        {
+          label: 'Dashboard',
+          icon: LucideLayoutDashboard,
+          key: 'Dashboard',
+          to: { name: 'Dashboard' },
+          condition: () => !props.mobile,
+        },
+      ].filter((link) => (link.condition ? link.condition() : true)),
+    },
+    {
+      name: 'Campaigns',
+      hideLabel: false,
+      opened: true,
+      views: [
+        {
+          label: 'Total Campaigns',
+          icon: ListIcon,
+          key: getCampaignView('Total Campaigns'),
+          to: { name: 'Leads', query: { view: getCampaignView('Total Campaigns') } },
+        },
+        {
+          label: 'Active Campaigns',
+          icon: ActivityIcon,
+          key: getCampaignView('Active Campaigns'),
+          to: { name: 'Leads', query: { view: getCampaignView('Active Campaigns') } },
+        },
+        {
+          label: 'Completed Campaigns',
+          icon: CheckCircleIcon,
+          key: getCampaignView('Completed Campaigns'),
+          to: { name: 'Leads', query: { view: getCampaignView('Completed Campaigns') } },
+        },
+        {
+          label: 'Pending Campaigns',
+          icon: ClockIcon,
+          key: getCampaignView('Pending Campaigns'),
+          to: { name: 'Leads', query: { view: getCampaignView('Pending Campaigns') } },
+        },
+      ],
+    },
+    {
+      name: 'Others',
+      hideLabel: true,
+      opened: true,
+      views: [
+        { label: 'Deals', icon: DealsIcon, key: 'Deals', to: { name: 'Deals' } },
+        { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' } },
+        { label: 'Organizations', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
+        { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
+        { label: 'Deliverables', icon: TaskIcon, key: 'Tasks', to: { name: 'Tasks' } },
+        { label: 'Call Logs', icon: PhoneIcon, key: 'Call Logs', to: { name: 'Call Logs' } },
+      ],
     },
   ]
+
   if (getPublicViews().length) {
-    _views.push({
-      name: 'Public Views',
-      opened: true,
-      views: parseView(getPublicViews()),
-    })
+    const campaignLabels = ['Total Campaigns', 'Active Campaigns', 'Completed Campaigns', 'Pending Campaigns']
+    const filteredPublicViews = getPublicViews().filter(v => !campaignLabels.includes(v.label))
+    
+    if (filteredPublicViews.length) {
+      _views.push({
+        name: 'Public Views',
+        opened: true,
+        views: parseView(filteredPublicViews),
+      })
+    }
   }
 
   if (getPinnedViews().length) {
