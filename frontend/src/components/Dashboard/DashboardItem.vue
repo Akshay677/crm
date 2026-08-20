@@ -3,7 +3,7 @@
     <div
       v-if="item.type == 'number_chart'"
       class="flex h-full w-full rounded shadow overflow-hidden transition-all duration-200"
-      :class="['total_campaigns', 'total_deliverables'].includes(item.name) && !editing ? 'cursor-pointer hover:ring-1 hover:ring-outline-gray-2 hover:shadow-md' : ''"
+      :class="['total_campaigns', 'active_campaigns', 'completed_campaigns', 'pending_campaigns', 'total_deliverables'].includes(item.name) && !editing ? 'cursor-pointer hover:ring-1 hover:ring-outline-gray-2 hover:shadow-md' : ''"
       @click="handleClick"
     >
       <Tooltip :text="__(item.data.tooltip)" class="w-full">
@@ -174,8 +174,16 @@ import LucideMapPin from '~icons/lucide/map-pin'
 import LucideUserCheck from '~icons/lucide/user-check'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 
+import { viewsStore } from '@/stores/views'
+
 const router = useRouter()
 const showCapacityModal = ref(false)
+const { getPublicViews } = viewsStore()
+
+const getCampaignView = (label) => {
+  const view = getPublicViews().find((v) => v.label === label)
+  return view ? view.name : label
+}
 
 const props = defineProps({
   index: { type: Number, required: true },
@@ -389,8 +397,21 @@ function formatTrendValue(data) {
 function handleClick() {
   if (props.editing) return
 
-  if (props.item.name === 'total_campaigns') {
-    router.push({ name: 'Leads' })
+  const campaignViews = {
+    total_campaigns: 'Total Campaigns',
+    active_campaigns: 'Active Campaigns',
+    completed_campaigns: 'Completed Campaigns',
+    pending_campaigns: 'Pending Campaigns',
+  }
+
+  if (campaignViews[props.item.name]) {
+    const viewLabel = campaignViews[props.item.name]
+    const viewName = getCampaignView(viewLabel)
+    if (props.item.name === 'total_campaigns') {
+      router.push({ name: 'Leads' })
+    } else {
+      router.push({ name: 'Leads', query: { view: viewName } })
+    }
   } else if (props.item.name === 'total_deliverables') {
     router.push({ name: 'Tasks' })
   }
