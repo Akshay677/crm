@@ -492,8 +492,10 @@ const _sections = computed(() => {
   let editButtonAdded = false
   return props.sections.map((section) => {
     if (section.columns?.length) {
-      section.columns[0].fields = section.columns[0].fields.map((field) => {
-        return parsedField(field)
+      section.columns.forEach((col) => {
+        if (col.fields) {
+          col.fields = col.fields.map((field) => parsedField(field))
+        }
       })
     }
     let _section = parsedSection(section, editButtonAdded)
@@ -524,12 +526,26 @@ function parsedField(field) {
     }
   }
 
-  if (field.fieldtype === 'Link' && field.options === 'User') {
+  if (
+    (field.fieldtype === 'Link' || field.fieldtype === 'User') &&
+    field.options === 'User'
+  ) {
+    let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
+
+    if (field.fieldname === 'project_manager' || field.fieldname === 'custom_project_manager') {
+      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Project Manager') || u.roles?.includes('System Manager')).map(u => u.name) || []
+    } else if (field.fieldname === 'editor' || field.fieldname === 'custom_editor') {
+      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Editor') || u.roles?.includes('System Manager')).map(u => u.name) || []
+    } else if (field.fieldname === 'executor' || field.fieldname === 'custom_executor') {
+      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Executor') || u.roles?.includes('System Manager')).map(u => u.name) || []
+    }
+
+    const existingFilters = parseLinkFilters(field.link_filters) || {}
     field.fieldtype = 'User'
     field.link_filters = JSON.stringify({
-      name: ['in', users.data?.crmUsers?.map((user) => user.name)],
+      ...existingFilters,
+      name: ['in', allowedUsers],
       ignore_user_type: 1,
-      ...(parseLinkFilters(field.link_filters) || {}),
     })
   }
 
