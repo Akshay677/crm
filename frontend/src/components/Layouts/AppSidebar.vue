@@ -291,7 +291,7 @@ const isDemoSite = ref(window.is_demo_site)
 
 const getCampaignView = (label) => {
   const view = getPublicViews().find((v) => v.label === label)
-  return view ? view.name : label
+  return view ? String(view.name) : label
 }
 
 const allViews = computed(() => {
@@ -421,8 +421,13 @@ function getIcon(routeName, icon) {
 
 // A saved view's key is its name; a plain nav item's key is its route name.
 function currentRouteKey() {
-  if (route.name === 'Leads' && !route.query.view) return getCampaignView('Total Campaigns')
-  if (route.name === 'Lead') return route.query.view || getCampaignView('Total Campaigns')
+  if (route.name === 'Leads') {
+    if (route.query.view) {
+      return String(route.query.view)
+    }
+    return String(getCampaignView('Total Campaigns'))
+  }
+  if (route.name === 'Lead') return String(route.query.view || getCampaignView('Total Campaigns'))
   if (route.name === 'Deal') return 'Deals'
   if (route.name === 'Contact') return 'Contacts'
   if (route.name === 'Organization') return 'Organizations'
