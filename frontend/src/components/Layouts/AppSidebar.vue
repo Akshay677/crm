@@ -58,6 +58,7 @@
             <template #header="{ opened, hide, toggle }">
               <div
                 v-if="!hide"
+                v-show="!isCollapsed"
                 class="group flex cursor-pointer items-center justify-between px-2 py-1.5 text-sm font-medium text-ink-gray-5 transition-colors hover:text-ink-gray-9"
                 @click="toggle()"
               >
@@ -71,7 +72,7 @@
                 />
               </div>
             </template>
-            <nav class="flex flex-col gap-1" :class="{ 'ml-2': !section.hideLabel }">
+            <nav class="flex flex-col gap-1" :class="{ 'ml-2': !section.hideLabel && !isCollapsed }">
               <SidebarItem
                 v-for="link in section.views"
                 :key="link.key"
