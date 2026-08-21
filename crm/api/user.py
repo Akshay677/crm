@@ -185,3 +185,20 @@ def update_module_in_user(user, module):
 
 	if block_modules:
 		user.set("block_modules", block_modules)
+
+def sync_user_to_team_profile(doc, method=None):
+	if doc.user_type == "System User":
+		if not frappe.db.exists("Team Profile", {"user": doc.name}):
+			team_profile = frappe.new_doc("Team Profile")
+			team_profile.user = doc.name
+			team_profile.full_name = doc.full_name
+			team_profile.is_active = 1
+			
+			valid_roles = ["Management", "Project Manager", "Editor", "Executor", "Ops", "Finance"]
+			user_roles = frappe.get_roles(doc.name)
+			for vr in valid_roles:
+				if vr in user_roles:
+					team_profile.role_type = vr
+					break
+					
+			team_profile.insert(ignore_permissions=True)
