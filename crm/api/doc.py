@@ -313,10 +313,19 @@ def get_data(
 			rows = frappe.parse_json(rows)
 
 		if not columns:
-			columns = [
-				{"label": "Name", "type": "Data", "key": "name", "width": "16rem"},
-				{"label": "Last Modified", "type": "Datetime", "key": "modified", "width": "8rem"},
-			]
+			if doctype == "Team Profile":
+				columns = [
+					{"label": "Email", "type": "Link", "key": "user", "width": "16rem"},
+					{"label": "Full Name", "type": "Data", "key": "full_name", "width": "16rem"},
+					{"label": "Role", "type": "Select", "key": "role_type", "width": "12rem"},
+					{"label": "Active", "type": "Check", "key": "is_active", "width": "8rem"},
+					{"label": "Last Modified", "type": "Datetime", "key": "modified", "width": "8rem"},
+				]
+			else:
+				columns = [
+					{"label": "Name", "type": "Data", "key": "name", "width": "16rem"},
+					{"label": "Last Modified", "type": "Datetime", "key": "modified", "width": "8rem"},
+				]
 
 		if not rows:
 			rows = ["name"]
@@ -337,7 +346,7 @@ def get_data(
 			if _saved_rows:
 				rows = _saved_rows
 			is_default = False
-		elif not custom_view or (is_default and hasattr(_list, "default_list_data")):
+		elif (not custom_view or is_default) and hasattr(_list, "default_list_data"):
 			rows = default_rows
 			columns = _list.default_list_data().get("columns")
 

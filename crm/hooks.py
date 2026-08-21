@@ -162,6 +162,10 @@ doc_events = {
 	"User": {
 		"after_insert": ["crm.api.user.sync_user_to_team_profile"],
 	},
+	"Team Profile": {
+		"after_insert": ["crm.api.user.sync_team_profile_to_user"],
+		"on_update": ["crm.api.user.sync_team_profile_to_user"],
+	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],
 	},

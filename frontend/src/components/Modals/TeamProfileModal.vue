@@ -11,28 +11,49 @@
         },
       ],
     }"
-    v-model="show"
+    v-model:open="show"
   >
     <template #body-content>
       <div class="flex flex-col gap-4">
         <ErrorMessage v-if="error" :message="error" @remove="error = null" />
-        <FormControl
-          v-for="field in fields"
-          :key="field.fieldname"
-          :type="field.fieldtype"
-          :label="__(field.label)"
-          :reqd="field.reqd"
-          :options="field.options"
-          v-model="doc[field.fieldname]"
-        />
+        <div v-for="field in fields" :key="field.fieldname">
+          <Link
+            v-if="field.fieldtype === 'Link'"
+            v-model="doc[field.fieldname]"
+            :doctype="field.options"
+            :label="__(field.label)"
+            :onCreate="
+              field.options === 'User'
+                ? (value, close) => createNewUser(value, close, field)
+                : null
+            "
+          />
+          <FormControl
+            v-else-if="field.fieldtype === 'Select'"
+            :type="'select'"
+            :label="__(field.label)"
+            :reqd="field.reqd"
+            :options="field.options.map(o => ({ label: o, value: o }))"
+            v-model="doc[field.fieldname]"
+          />
+          <FormControl
+            v-else
+            :type="field.fieldtype.toLowerCase()"
+            :label="__(field.label)"
+            :reqd="field.reqd"
+            v-model="doc[field.fieldname]"
+          />
+        </div>
       </div>
     </template>
   </Dialog>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { ErrorMessage, Dialog, FormControl, call } from 'frappe-ui'
+import Link from '@/components/Controls/Link.vue'
+import { createDocument } from '@/composables/document'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -41,6 +62,11 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'success'])
 
 const show = ref(props.modelValue)
+
+watch(() => show.value, (val) => {
+  emit('update:modelValue', val)
+})
+
 const isSubmitting = ref(false)
 const error = ref(null)
 
@@ -78,5 +104,13 @@ async function submit() {
   } finally {
     isSubmitting.value = false
   }
+}
+
+function createNewUser(value, close, field) {
+  createDocument('User', { first_name: value, email: value }, close, (newDoc) => {
+    if (newDoc) {
+      doc[field.fieldname] = newDoc.name
+    }
+  })
 }
 </script>

@@ -6,16 +6,13 @@
     type="checkbox"
     @change.stop="updateFilter(filter, $event.target.checked)"
   />
-  <FormControl
+  <Autocomplete
     v-else-if="filter.fieldtype === 'Select'"
-    v-model="filter.value"
-    class="form-control cursor-pointer [&_select]:cursor-pointer"
-    type="select"
+    :modelValue="filter.value ? { label: filter.value, value: filter.value } : null"
     :options="formattedOptions"
     :placeholder="filter.label"
-    side="bottom"
-    :offset="4"
-    @update:modelValue="updateFilter(filter, $event)"
+    size="sm"
+    @update:modelValue="(val) => updateFilter(filter, val?.value || '')"
   />
   <Link
     v-else-if="filter.fieldtype === 'Link'"
@@ -42,7 +39,7 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
-import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
+import { FormControl, DatePicker, DateTimePicker, Autocomplete } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 import { reactive, watch, computed } from 'vue'
 
