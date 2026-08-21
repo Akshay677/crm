@@ -38,7 +38,7 @@
           />
           <FormControl
             v-else
-            :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype.toLowerCase()"
+            :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype === 'Password' ? 'password' : field.fieldtype.toLowerCase()"
             :label="__(field.label)"
             :reqd="field.reqd"
             v-model="doc[field.fieldname]"
@@ -75,6 +75,7 @@ const doc = reactive({
   user: '',
   full_name: '',
   role_type: '',
+  password: '',
   daily_capacity: 10,
   is_active: true
 })
@@ -82,6 +83,7 @@ const doc = reactive({
 const fields = [
   { fieldname: 'user', fieldtype: 'Link', label: 'User', options: 'User', reqd: 1 },
   { fieldname: 'role_type', fieldtype: 'Select', label: 'Role', options: ['Management', 'Project Manager', 'Editor', 'Executor', 'Ops', 'Finance'] },
+  { fieldname: 'password', fieldtype: 'Password', label: 'Password', reqd: 1 },
   { fieldname: 'daily_capacity', fieldtype: 'Int', label: 'Daily Capacity' },
   { fieldname: 'is_active', fieldtype: 'Check', label: 'Active' },
 ]
@@ -89,13 +91,31 @@ const fields = [
 async function submit() {
   isSubmitting.value = true
   error.value = null
+
+  if (!doc.password) {
+    error.value = __('Password is required')
+    isSubmitting.value = false
+    return
+  }
+
   try {
+    // Create the team profile (password is not a Team Profile field, exclude it)
+    const { password, ...teamProfileDoc } = doc
     const res = await call('frappe.client.insert', {
       doc: {
         doctype: 'Team Profile',
-        ...doc
+        ...teamProfileDoc
       }
     })
+
+    // Set the password on the user so they can log in
+    await call('frappe.client.set_value', {
+      doctype: 'User',
+      name: doc.user,
+      fieldname: 'new_password',
+      value: password,
+    })
+
     emit('success', res)
     props.options?.afterInsert?.(res)
     usersStore().users.reload()
@@ -115,3 +135,4 @@ function createNewUser(value, close, field) {
   })
 }
 </script>
+
