@@ -213,6 +213,7 @@ import Settings from '@/components/Settings/Settings.vue'
 import LucideUsers from '~icons/lucide/users'
 import LucideVideo from '~icons/lucide/video'
 import LucideUserCheck from '~icons/lucide/user-check'
+import LucideReceiptText from '~icons/lucide/receipt-text'
 import { viewsStore } from '@/stores/views'
 import {
   unreadNotificationsCount,
@@ -354,6 +355,7 @@ const allViews = computed(() => {
         { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', href: '/app/team-profile' },
         { label: 'Creator Pages', icon: markRaw(LucideUsers), key: 'Creator Pages', href: '/app/creator-page' },
         { label: 'Content Assets', icon: markRaw(LucideVideo), key: 'Content Assets', href: '/app/content-asset' },
+        { label: 'Invoices', icon: markRaw(LucideReceiptText), key: 'Client Invoices', href: '/app/client-invoice' },
       ],
     },
   ]
