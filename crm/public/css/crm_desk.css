@@ -1,0 +1,25 @@
+/* Style Desk Workspace link arrows & indicators in bright blue */
+.links-widget-box .link-item .link-content .es-icon,
+.links-widget-box .link-item .link-content svg,
+.links-widget-box .link-item .icon-xs,
+.links-widget-box .link-item svg use,
+.links-widget-box .link-item .icon,
+.links-widget-box .link-item [class*="arrow"],
+.links-widget-box .link-item svg *,
+.shortcut-widget-box .indicator-pill svg,
+.shortcut-widget-box svg.es-icon,
+.shortcut-widget-box .indicator-pill .es-icon,
+.shortcut-widget-box svg use,
+.shortcut-widget-box svg * {
+  color: #2563eb !important;
+  fill: #2563eb !important;
+  stroke: #2563eb !important;
+}
+
+/* Interactive link hover states in blue */
+.links-widget-box .link-item:hover .link-text,
+.links-widget-box .link-item:hover a,
+.links-widget-box .link-item a:hover,
+.shortcut-widget-box:hover .widget-title {
+  color: #2563eb !important;
+}

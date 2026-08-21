@@ -31,7 +31,7 @@ require_type_annotated_api_methods = True
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/crm/css/crm.css"
+app_include_css = "/assets/crm/css/crm_desk.css"
 # app_include_js = "/assets/crm/js/crm.js"
 
 # include js, css files in header of web template
