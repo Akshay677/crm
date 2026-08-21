@@ -193,6 +193,13 @@ import { ConfirmDelete } from '../../utils'
 
 const { users, isAdmin, isManager } = usersStore()
 
+onMounted(() => {
+  users.reload()
+  if (searchRef.value) {
+    searchRef.value.el.focus()
+  }
+})
+
 const showAddExistingModal = ref(false)
 const searchRef = ref(null)
 const search = ref('')

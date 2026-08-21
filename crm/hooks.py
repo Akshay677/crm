@@ -161,10 +161,13 @@ override_doctype_class = {
 doc_events = {
 	"User": {
 		"after_insert": ["crm.api.user.sync_user_to_team_profile"],
+		"on_trash": ["crm.api.user.remove_user_from_team_profile"],
 	},
 	"Team Profile": {
+		"before_save": ["crm.api.user.populate_team_profile_full_name"],
 		"after_insert": ["crm.api.user.sync_team_profile_to_user"],
 		"on_update": ["crm.api.user.sync_team_profile_to_user"],
+		"on_trash": ["crm.api.user.remove_team_profile_from_user"],
 	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],

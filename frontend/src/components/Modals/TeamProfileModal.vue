@@ -54,6 +54,7 @@ import { ref, reactive, watch } from 'vue'
 import { ErrorMessage, Dialog, FormControl, call } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { createDocument } from '@/composables/document'
+import { usersStore } from '@/stores/users'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -80,7 +81,6 @@ const doc = reactive({
 
 const fields = [
   { fieldname: 'user', fieldtype: 'Link', label: 'User', options: 'User', reqd: 1 },
-  { fieldname: 'full_name', fieldtype: 'Data', label: 'Full Name' },
   { fieldname: 'role_type', fieldtype: 'Select', label: 'Role', options: ['Management', 'Project Manager', 'Editor', 'Executor', 'Ops', 'Finance'] },
   { fieldname: 'daily_capacity', fieldtype: 'Int', label: 'Daily Capacity' },
   { fieldname: 'is_active', fieldtype: 'Check', label: 'Active' },
@@ -98,6 +98,7 @@ async function submit() {
     })
     emit('success', res)
     props.options?.afterInsert?.(res)
+    usersStore().users.reload()
     show.value = false
   } catch (err) {
     error.value = err.message || err

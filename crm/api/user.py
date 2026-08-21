@@ -223,3 +223,27 @@ def sync_team_profile_to_user(doc, method=None):
 		if roles_changed:
 			user.flags.ignore_permissions = True
 			user.save()
+
+def remove_team_profile_from_user(doc, method=None):
+	if doc.user and doc.user != "Administrator":
+		try:
+			frappe.delete_doc("User", doc.user, ignore_permissions=True)
+		except Exception:
+			user = frappe.get_doc("User", doc.user)
+			user.enabled = 0
+			roles_changed = False
+			for r in list(user.roles):
+				if r.role == doc.role_type:
+					user.remove(r)
+					roles_changed = True
+			user.flags.ignore_permissions = True
+			user.save()
+
+def remove_user_from_team_profile(doc, method=None):
+	profile_name = frappe.db.get_value("Team Profile", {"user": doc.name}, "name")
+	if profile_name:
+		frappe.delete_doc("Team Profile", profile_name, ignore_permissions=True)
+
+def populate_team_profile_full_name(doc, method=None):
+	if doc.user and not doc.full_name:
+		doc.full_name = frappe.db.get_value("User", doc.user, "full_name")

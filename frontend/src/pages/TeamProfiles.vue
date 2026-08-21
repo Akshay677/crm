@@ -55,6 +55,7 @@
   <TeamProfileModal
     v-if="showTeamProfileModal"
     v-model="showTeamProfileModal"
+    @success="() => viewControls?.reload()"
   />
 </template>
 <script setup>
