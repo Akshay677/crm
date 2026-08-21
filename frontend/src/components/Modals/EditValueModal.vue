@@ -8,7 +8,7 @@
           trigger="button"
           :model-value="field.fieldname"
           :options="fields.data || []"
-          :placeholder="__('Source')"
+          :placeholder="__('Select Field')"
           @update:selected-option="(e) => changeField(e)"
         />
       </div>
@@ -18,8 +18,7 @@
           :is="getValueComponent(field)"
           :value="newValue"
           size="md"
-          :placeholder="__('Contact Us')"
-          @change="(v) => updateValue(v)"
+          :placeholder="__('Enter value')"
         />
       </div>
     </template>
@@ -149,6 +148,11 @@ function getSelectOptions(options) {
 
 function getValueComponent(f) {
   const { fieldtype, options } = f
+  const listeners = {
+    onChange: (v) => updateValue(v),
+    'onUpdate:modelValue': (v) => updateValue(v),
+  }
+  
   if (typeSelect.includes(fieldtype) || typeCheck.includes(fieldtype)) {
     const _options =
       fieldtype == 'Check' ? ['Yes', 'No'] : getSelectOptions(options)
@@ -159,16 +163,17 @@ function getValueComponent(f) {
         value: o,
       })),
       modelValue: newValue.value,
+      ...listeners,
     })
   } else if (typeLink.includes(fieldtype)) {
     if (fieldtype == 'Dynamic Link') {
-      return h(FormControl, { type: 'text' })
+      return h(FormControl, { type: 'text', ...listeners })
     }
-    return h(Link, { class: 'form-control', doctype: options })
+    return h(Link, { class: 'form-control', doctype: options, ...listeners })
   } else if (typeNumber.includes(fieldtype)) {
-    return h(FormControl, { type: 'number' })
+    return h(FormControl, { type: 'number', ...listeners })
   } else if (typeDate.includes(fieldtype)) {
-    return h(DatePicker)
+    return h(DatePicker, { ...listeners })
   } else if (typeEditor.includes(fieldtype)) {
     return h(TextEditor, {
       variant: 'outline',
@@ -176,9 +181,10 @@ function getValueComponent(f) {
         '!prose-sm overflow-auto min-h-[80px] max-h-80 py-1.5 px-2 rounded border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 hover:shadow-sm focus:bg-surface-base focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors',
       bubbleMenu: true,
       content: newValue.value,
+      ...listeners,
     })
   } else {
-    return h(FormControl, { type: 'text' })
+    return h(FormControl, { type: 'text', ...listeners })
   }
 }
 </script>

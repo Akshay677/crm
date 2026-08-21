@@ -161,6 +161,7 @@ override_doctype_class = {
 doc_events = {
 	"User": {
 		"after_insert": ["crm.api.user.sync_user_to_team_profile"],
+		"on_update": ["crm.api.user.sync_user_roles_to_team_profile"],
 		"on_trash": ["crm.api.user.remove_user_from_team_profile"],
 	},
 	"Team Profile": {

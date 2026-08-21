@@ -203,7 +203,29 @@ def sync_user_to_team_profile(doc, method=None):
 					
 			team_profile.insert(ignore_permissions=True)
 
+def sync_user_roles_to_team_profile(doc, method=None):
+	if getattr(doc.flags, "ignore_team_profile_sync", False):
+		return
+	if doc.user_type == "System User":
+		profile_name = frappe.db.get_value("Team Profile", {"user": doc.name}, "name")
+		if profile_name:
+			valid_roles = ["Management", "Project Manager", "Editor", "Executor", "Ops", "Finance"]
+			user_roles = [r.role for r in doc.roles]
+			new_role = None
+			for vr in valid_roles:
+				if vr in user_roles:
+					new_role = vr
+					break
+			
+			team_profile = frappe.get_doc("Team Profile", profile_name)
+			if team_profile.role_type != new_role:
+				team_profile.flags.ignore_user_sync = True
+				team_profile.role_type = new_role
+				team_profile.save(ignore_permissions=True)
+
 def sync_team_profile_to_user(doc, method=None):
+	if getattr(doc.flags, "ignore_user_sync", False):
+		return
 	if doc.user and doc.role_type:
 		user = frappe.get_doc("User", doc.user)
 		valid_roles = ["Management", "Project Manager", "Editor", "Executor", "Ops", "Finance", "Sales Manager", "Sales User"]
@@ -222,6 +244,7 @@ def sync_team_profile_to_user(doc, method=None):
 			
 		if roles_changed:
 			user.flags.ignore_permissions = True
+			user.flags.ignore_team_profile_sync = True
 			user.save()
 
 def remove_team_profile_from_user(doc, method=None):
