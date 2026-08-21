@@ -159,6 +159,9 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+	"User": {
+		"after_insert": ["crm.api.user.sync_user_to_team_profile"],
+	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],
 	},
