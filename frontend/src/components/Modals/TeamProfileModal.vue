@@ -135,7 +135,12 @@ async function submit() {
 }
 
 function createNewUser(value, close, field) {
-  createDocument('User', { first_name: value, email: value }, close, (newDoc) => {
+  createDocument('User', { 
+    first_name: value, 
+    email: value, 
+    send_welcome_email: 0,
+    roles: [{ role: 'Sales User' }]
+  }, close, (newDoc) => {
     if (newDoc) {
       doc[field.fieldname] = newDoc.name
     }
