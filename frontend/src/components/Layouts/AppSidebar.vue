@@ -352,7 +352,7 @@ const allViews = computed(() => {
         { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
         { label: 'Deliverables', icon: TaskIcon, key: 'Tasks', to: { name: 'Tasks' } },
         { label: 'Call Logs', icon: PhoneIcon, key: 'Call Logs', to: { name: 'Call Logs' } },
-        { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', href: '/app/team-profile' },
+        { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', to: { name: 'Team Profiles' } },
         { label: 'Creator Pages', icon: markRaw(LucideUsers), key: 'Creator Pages', href: '/app/creator-page' },
         { label: 'Content Assets', icon: markRaw(LucideVideo), key: 'Content Assets', href: '/app/content-asset' },
         { label: 'Invoices', icon: markRaw(LucideReceiptText), key: 'Client Invoices', href: '/app/client-invoice' },
@@ -426,6 +426,8 @@ function currentRouteKey() {
   if (route.name === 'Deal') return 'Deals'
   if (route.name === 'Contact') return 'Contacts'
   if (route.name === 'Organization') return 'Organizations'
+  if (route.name === 'TeamProfile') return 'Team Profiles'
+  if (route.name === 'Team Profiles') return 'Team Profiles'
   return route.query.view || route.name
 }
 

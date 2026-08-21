@@ -61,7 +61,7 @@ const formattedOptions = computed(() => {
   }
 
   if (Array.isArray(opts)) {
-    return opts
+    let options = opts
       .map((opt) => {
         if (typeof opt === 'string') {
           const trimmed = opt.trim()
@@ -76,6 +76,12 @@ const formattedOptions = computed(() => {
         return null
       })
       .filter(Boolean)
+      
+    // Add empty option so users can clear the select filter
+    if (props.filter.fieldtype === 'Select') {
+      options.unshift({ label: 'Clear', value: '' })
+    }
+    return options
   }
   return opts
 })

@@ -330,8 +330,12 @@ def get_data(
 
 		if not custom_view and frappe.db.exists("CRM View Settings", default_view_filters):
 			list_view_settings = frappe.get_doc("CRM View Settings", default_view_filters)
-			columns = frappe.parse_json(list_view_settings.columns)
-			rows = frappe.parse_json(list_view_settings.rows)
+			_saved_columns = frappe.parse_json(list_view_settings.columns)
+			_saved_rows = frappe.parse_json(list_view_settings.rows)
+			if _saved_columns:
+				columns = _saved_columns
+			if _saved_rows:
+				rows = _saved_rows
 			is_default = False
 		elif not custom_view or (is_default and hasattr(_list, "default_list_data")):
 			rows = default_rows
@@ -342,16 +346,20 @@ def get_data(
 			if column.get("key") not in rows:
 				rows.append(column.get("key"))
 			column["label"] = _(column.get("label"))
-
+            
 			if column.get("key") == "_liked_by" and column.get("width") == "10rem":
 				column["width"] = "50px"
+			if column.get("key") == "creation":
+				column["width"] = "10rem"
 
 			# remove column if column.hidden is True
 			column_meta = meta.get_field(column.get("key"))
 			if column_meta and column_meta.get("hidden"):
 				columns.remove(column)
+            
+		if "name" not in rows:
+			rows.append("name")
 
-		# check if rows has group_by_field if not add it
 		if group_by_field and group_by_field not in rows:
 			rows.append(group_by_field)
 

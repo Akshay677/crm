@@ -97,6 +97,12 @@ const routes = [
     props: true,
   },
   {
+    alias: '/team-profiles',
+    path: '/team-profiles/view/:viewType?',
+    name: 'Team Profiles',
+    component: () => import('@/pages/TeamProfiles.vue'),
+  },
+  {
     alias: '/call-logs',
     path: '/call-logs/view/:viewType?',
     name: 'Call Logs',
