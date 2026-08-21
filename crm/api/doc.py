@@ -863,5 +863,5 @@ def get_campaign_counts():
 		"Total Campaigns": get_count({"converted": 0}),
 		"Active Campaigns": get_count({"converted": 0, "status": ["not in", ["Completed", "Cancelled"]]}),
 		"Completed Campaigns": get_count({"converted": 0, "status": "Completed"}),
-		"Pending Campaigns": get_count({"converted": 0, "status": "Pending"}),
+		"Pending Campaigns": get_count({"converted": 0, "status": ["in", ["Pending", "Campaign Created", "PM Assigned"]]}),
 	}
