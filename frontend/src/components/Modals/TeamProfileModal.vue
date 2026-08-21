@@ -38,7 +38,7 @@
           />
           <FormControl
             v-else
-            :type="field.fieldtype.toLowerCase()"
+            :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype.toLowerCase()"
             :label="__(field.label)"
             :reqd="field.reqd"
             v-model="doc[field.fieldname]"
@@ -76,7 +76,7 @@ const doc = reactive({
   full_name: '',
   role_type: '',
   daily_capacity: 10,
-  is_active: 1
+  is_active: true
 })
 
 const fields = [
