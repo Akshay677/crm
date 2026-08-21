@@ -36,9 +36,15 @@
             :options="field.options.map(o => ({ label: o, value: o }))"
             v-model="doc[field.fieldname]"
           />
+          <Password
+            v-else-if="field.fieldtype === 'Password'"
+            :label="__(field.label)"
+            :reqd="field.reqd"
+            v-model="doc[field.fieldname]"
+          />
           <FormControl
             v-else
-            :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype === 'Password' ? 'password' : field.fieldtype.toLowerCase()"
+            :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype.toLowerCase()"
             :label="__(field.label)"
             :reqd="field.reqd"
             v-model="doc[field.fieldname]"
@@ -53,6 +59,7 @@
 import { ref, reactive, watch } from 'vue'
 import { ErrorMessage, Dialog, FormControl, call } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
+import Password from '@/components/Controls/Password.vue'
 import { createDocument } from '@/composables/document'
 import { usersStore } from '@/stores/users'
 
