@@ -13,7 +13,24 @@
     :placeholder="filter.label"
     size="sm"
     @update:modelValue="(val) => updateFilter(filter, val?.value || '')"
-  />
+  >
+    <template #footer="{ togglePopover }">
+      <div>
+        <Button
+          variant="ghost"
+          class="w-full !justify-start"
+          :label="__('Clear')"
+          iconLeft="x"
+          @click="
+            () => {
+              updateFilter(filter, '')
+              togglePopover()
+            }
+          "
+        />
+      </div>
+    </template>
+  </Autocomplete>
   <Link
     v-else-if="filter.fieldtype === 'Link'"
     :value="filter.value"
@@ -39,7 +56,13 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
-import { FormControl, DatePicker, DateTimePicker, Autocomplete } from 'frappe-ui'
+import {
+  FormControl,
+  DatePicker,
+  DateTimePicker,
+  Autocomplete,
+  Button,
+} from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 import { reactive, watch, computed } from 'vue'
 
@@ -74,10 +97,6 @@ const formattedOptions = computed(() => {
       })
       .filter(Boolean)
       
-    // Add empty option so users can clear the select filter
-    if (props.filter.fieldtype === 'Select') {
-      options.unshift({ label: 'Clear', value: '' })
-    }
     return options
   }
   return opts
