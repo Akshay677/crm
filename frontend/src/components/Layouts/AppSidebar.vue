@@ -159,8 +159,7 @@
   </div>
 
   <template v-if="!mobile">
-    <Settings />
-    <HelpModal
+        <HelpModal
       v-if="showHelpModal"
       v-model="showHelpModal"
       v-model:articles="articles"
@@ -210,7 +209,6 @@ import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import HelpIcon from '@/components/Icons/HelpIcon.vue'
 import Notifications from '@/components/Notifications.vue'
-import Settings from '@/components/Settings/Settings.vue'
 import LucideUsers from '~icons/lucide/users'
 import LucideVideo from '~icons/lucide/video'
 import LucideUserCheck from '~icons/lucide/user-check'

@@ -6,9 +6,10 @@
     @close="activeSettingsPage = ''"
   >
     <template #body>
-      <div class="flex h-[calc(100vh_-_8rem)] bg-surface-gray-1">
+      <div class="flex flex-col md:flex-row h-full max-h-[calc(100vh_-_4rem)] md:h-[calc(100vh_-_8rem)] bg-surface-gray-1">
         <div
-          class="flex flex-col m-1 rounded-l-lg w-56 shrink-0 bg-surface-gray-1 overflow-y-auto"
+          v-if="!isMobileView || showMobileMenu"
+          class="flex flex-col md:m-1 md:rounded-l-lg w-full md:w-56 shrink-0 bg-surface-gray-1 overflow-y-auto"
         >
           <template v-for="(tab, i) in tabs" :key="tab.label">
             <div v-if="!tab.hideLabel && i != 0" class="mx-1 mb-0.5 mt-[5px]" />
@@ -28,7 +29,7 @@
                 :class="
                   activeTab?.label != item.label && 'hover:!bg-surface-gray-3'
                 "
-                @click="activeSettingsPage = item.label"
+                @click="activeSettingsPage = item.label; showMobileMenu = false"
               >
                 <template #prefix>
                   <Icon :icon="item.icon" class="size-4 text-ink-gray-7" />
@@ -38,8 +39,13 @@
           </template>
         </div>
         <div
-          class="flex flex-col flex-1 overflow-y-auto bg-surface-elevation-2"
+          v-if="!isMobileView || !showMobileMenu"
+          class="flex flex-col flex-1 overflow-y-auto bg-surface-elevation-2 relative"
         >
+          <div v-if="isMobileView" class="sticky top-0 bg-surface-elevation-2 z-10 flex items-center p-3 border-b shrink-0">
+            <Button icon="chevron-left" @click="showMobileMenu = true" variant="ghost" class="mr-2" />
+            <span class="font-medium">{{ __(activeTab?.label) }}</span>
+          </div>
           <component :is="activeTab.component" v-if="activeTab" />
         </div>
       </div>
@@ -83,13 +89,16 @@ import {
   disableSettingModalOutsideClick,
 } from '@/composables/settings'
 import { isWhatsappInstalled } from '@/composables/whatsapp'
-import { Dialog, Avatar, SidebarItem } from 'frappe-ui'
+import { isMobileView } from '@/composables/settings'
+import { Dialog, Avatar, SidebarItem, Button } from 'frappe-ui'
 import { ref, markRaw, computed, watch, h } from 'vue'
 import AssignmentRulePage from './AssignmentRules/AssignmentRulePage.vue'
 import ShieldCheck from '~icons/lucide/shield-check'
 import SlaConfig from './Sla/SlaConfig.vue'
 
 const { isManager, getUser } = usersStore()
+
+const showMobileMenu = ref(true)
 
 const user = computed(() => getUser() || {})
 

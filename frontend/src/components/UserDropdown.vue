@@ -52,7 +52,7 @@ import AppsIcon from '@/components/Icons/AppsIcon.vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
 import { getSettings } from '@/stores/settings'
-import { showSettings, isMobileView } from '@/composables/settings'
+import { showSettings, isMobileView, mobileSidebarOpened } from '@/composables/settings'
 import { showAboutModal } from '@/composables/modals'
 import { confirmLoginToFrappeCloud } from '@/composables/frappecloud'
 import { createResource, Dropdown } from 'frappe-ui'
@@ -140,8 +140,10 @@ function getStandardItem(item) {
       return {
         icon: item.icon,
         label: __(item.label),
-        onClick: () => (showSettings.value = true),
-        condition: () => !isMobileView.value,
+        onClick: () => {
+          showSettings.value = true
+          if (isMobileView.value) mobileSidebarOpened.value = false
+        },
       }
     case 'login_to_fc':
       return {

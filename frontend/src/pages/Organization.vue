@@ -14,9 +14,9 @@
       />
     </template>
   </LayoutHeader>
-  <div v-if="organization.doc" ref="parentRef" class="flex h-full">
+  <div v-if="organization.doc" ref="parentRef" class="flex h-full flex-col md:flex-row">
     <Resizer
-      v-if="organization.doc"
+      v-if="organization.doc && !isMobileView"
       :parent="$refs.parentRef"
       class="flex h-full flex-col overflow-hidden border-r"
     >
@@ -130,6 +130,7 @@
           <component :is="tab.icon" v-if="tab.icon" class="h-5" />
           {{ __(tab.label) }}
           <Badge
+            v-if="tab.count"
             class="group-hover:bg-surface-gray-10"
             :class="[selected ? 'bg-surface-gray-10' : 'bg-gray-600']"
             variant="solid"
@@ -141,6 +142,104 @@
         </button>
       </template>
       <template #tab-panel="{ tab }">
+      <div v-if="tab?.label == 'Details'" class="flex flex-col flex-1 overflow-y-auto">
+        <div class="border-b">
+          <FileUploader
+            :validateFile="validateIsImageFile"
+            @success="changeOrganizationImage"
+          >
+            <template #default="{ openFileSelector, error }">
+              <div class="flex flex-col items-start justify-start gap-4 p-5">
+                <div class="flex gap-4 items-center">
+                  <div class="group relative h-15.5 w-15.5">
+                    <Avatar
+                      size="3xl"
+                      class="h-15.5 w-15.5"
+                      :label="organization.doc.organization_name"
+                      :image="organization.doc.organization_logo"
+                    />
+                    <component
+                      :is="organization.doc.organization_logo ? Dropdown : 'div'"
+                      v-bind="
+                        organization.doc.organization_logo
+                          ? {
+                              options: [
+                                {
+                                  icon: 'upload',
+                                  label: organization.doc.organization_logo
+                                    ? __('Change Image')
+                                    : __('Upload Image'),
+                                  onClick: openFileSelector,
+                                },
+                                {
+                                  icon: 'trash-2',
+                                  label: __('Remove Image'),
+                                  onClick: () => changeOrganizationImage(''),
+                                },
+                              ],
+                            }
+                          : { onClick: openFileSelector }
+                      "
+                      class="!absolute bottom-0 left-0 right-0"
+                    >
+                      <div
+                        class="z-1 absolute bottom-0 left-0 right-0 flex h-14 cursor-pointer items-center justify-center rounded-b-full bg-black bg-opacity-40 pt-5 opacity-0 duration-300 ease-in-out group-hover:opacity-100"
+                        style="
+                          -webkit-clip-path: inset(22px 0 0 0);
+                          clip-path: inset(22px 0 0 0);
+                        "
+                      >
+                        <CameraIcon class="h-6 w-6 cursor-pointer text-white" />
+                      </div>
+                    </component>
+                  </div>
+                  <div class="flex flex-col gap-2 truncate">
+                    <div class="truncate text-3xl-medium text-ink-gray-9">
+                      <span>{{ organization.doc.name }}</span>
+                    </div>
+                    <div
+                      v-if="organization.doc.website"
+                      class="flex items-center gap-1.5 text-base text-ink-gray-8"
+                    >
+                      <WebsiteIcon class="size-4" />
+                      <span>{{ website(organization.doc.website) }}</span>
+                    </div>
+                    <ErrorMessage :message="__(error)" />
+                  </div>
+                </div>
+                <div class="flex gap-1.5">
+                  <Button
+                    v-if="canDelete"
+                    :label="__('Delete')"
+                    theme="red"
+                    size="sm"
+                    iconLeft="trash-2"
+                    @click="deleteOrganization()"
+                  />
+                  <Button
+                    :tooltip="__('Open Website')"
+                    icon="lucide-link"
+                    @click="openWebsite"
+                  />
+                </div>
+              </div>
+            </template>
+          </FileUploader>
+        </div>
+        <div
+          v-if="sections.data"
+          class="flex flex-1 flex-col justify-between overflow-hidden"
+        >
+          <SidePanelLayout
+            :sections="sections.data"
+            doctype="CRM Organization"
+            :docname="organization.doc.name"
+            @reload="sections.reload"
+            @beforeFieldChange="beforeFieldChange"
+          />
+        </div>
+      </div>
+
         <DealsListView
           v-if="tab.label === 'Deals' && rows.length"
           class="mt-4"
@@ -179,6 +278,9 @@
 
 <script setup>
 import ErrorPage from '@/components/ErrorPage.vue'
+import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
+import { isMobileView } from '@/composables/settings'
+
 import Resizer from '@/components/Resizer.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import Icon from '@/components/Icon.vue'
@@ -370,18 +472,26 @@ function getParsedSections(_sections) {
 }
 
 const tabIndex = ref(0)
-const tabs = [
-  {
-    label: 'Deals',
-    icon: DealsIcon,
-    count: computed(() => deals.data?.length),
-  },
-  {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    count: computed(() => contacts.data?.length),
-  },
-]
+const tabs = computed(() => {
+  let tabOptions = [
+    {
+      label: 'Details',
+      icon: DetailsIcon,
+      condition: () => isMobileView.value,
+    },
+    {
+      label: 'Deals',
+      icon: DealsIcon,
+      count: computed(() => deals.data?.length),
+    },
+    {
+      label: 'Contacts',
+      icon: ContactsIcon,
+      count: computed(() => contacts.data?.length),
+    },
+  ]
+  return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
+})
 
 const deals = createListResource({
   type: 'list',
