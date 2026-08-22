@@ -50,7 +50,8 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Assigned To",
-   "options": "User"
+   "options": "User",
+   "reqd": 1
   },
   {
    "fieldname": "status",
@@ -64,7 +65,8 @@
    "fieldname": "due_date",
    "fieldtype": "Datetime",
    "in_standard_filter": 1,
-   "label": "Due Date"
+   "label": "Due Date",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_bzhd",
