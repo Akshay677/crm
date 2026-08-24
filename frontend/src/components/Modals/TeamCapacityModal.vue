@@ -296,9 +296,9 @@
                     </td>
 
                     <!-- Time in Stage -->
-                    <td class="py-3 px-3 text-center font-bold">
+                    <td class="py-3 px-3 text-center font-bold whitespace-nowrap">
                       <span
-                        class="px-2 py-0.5 rounded-full text-[11px]"
+                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] whitespace-nowrap"
                         :class="cmp.hours_in_stage >= 24 ? 'bg-amber-100 text-amber-900 font-bold' : 'bg-surface-gray-2 text-ink-gray-7'"
                       >
                         {{ cmp.days_in_stage >= 1 ? `${cmp.days_in_stage} days` : `${cmp.hours_in_stage} hrs` }}
