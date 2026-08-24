@@ -22,6 +22,7 @@
             v-model="doc[field.fieldname]"
             :doctype="field.options"
             :label="__(field.label)"
+            :required="field.reqd"
             :onCreate="
               field.options === 'User'
                 ? (value, close) => createNewUser(value, close, field)
@@ -32,21 +33,21 @@
             v-else-if="field.fieldtype === 'Select'"
             :type="'select'"
             :label="__(field.label)"
-            :reqd="field.reqd"
+            :required="field.reqd"
             :options="field.options.map(o => ({ label: o, value: o }))"
             v-model="doc[field.fieldname]"
           />
           <Password
             v-else-if="field.fieldtype === 'Password'"
             :label="__(field.label)"
-            :reqd="field.reqd"
+            :required="field.reqd"
             v-model="doc[field.fieldname]"
           />
           <FormControl
             v-else
             :type="field.fieldtype === 'Check' ? 'checkbox' : field.fieldtype.toLowerCase()"
             :label="__(field.label)"
-            :reqd="field.reqd"
+            :required="field.reqd"
             v-model="doc[field.fieldname]"
           />
         </div>
@@ -89,7 +90,7 @@ const doc = reactive({
 
 const fields = [
   { fieldname: 'user', fieldtype: 'Link', label: 'User', options: 'User', reqd: 1 },
-  { fieldname: 'role_type', fieldtype: 'Select', label: 'Role', options: ['Management', 'Project Manager', 'Editor', 'Executor', 'Ops', 'Finance'] },
+  { fieldname: 'role_type', fieldtype: 'Select', label: 'Role', options: ['Management', 'Project Manager', 'Editor', 'Executor', 'Ops', 'Finance'], reqd: 1 },
   { fieldname: 'password', fieldtype: 'Password', label: 'Password', reqd: 1 },
   { fieldname: 'daily_capacity', fieldtype: 'Int', label: 'Daily Capacity' },
   { fieldname: 'is_active', fieldtype: 'Check', label: 'Active' },
@@ -99,6 +100,16 @@ async function submit() {
   isSubmitting.value = true
   error.value = null
 
+  if (!doc.user) {
+    error.value = __('User is required')
+    isSubmitting.value = false
+    return
+  }
+  if (!doc.role_type) {
+    error.value = __('Role is required')
+    isSubmitting.value = false
+    return
+  }
   if (!doc.password) {
     error.value = __('Password is required')
     isSubmitting.value = false
