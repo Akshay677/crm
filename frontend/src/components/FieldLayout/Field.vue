@@ -357,7 +357,7 @@ if (doctype) {
   getFormattedPercent = (fn, doc) => formatNumber(doc[fn], '', null) + '%'
   getFormattedFloat = (fn, doc) => formatNumber(doc[fn], '', null)
   getFormattedCurrency = (fn, doc) =>
-    formatCurrency(doc[fn], '', window.sysdefaults?.currency || 'USD', null)
+    formatCurrency(doc[fn], '', window.sysdefaults?.currency || 'INR', null)
 }
 
 const { users, getUser } = usersStore()
@@ -488,10 +488,23 @@ const field = computed(() => {
   ) {
     let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
 
-    if (
+    const isPM =
       field.fieldname === 'project_manager' ||
-      field.fieldname === 'custom_project_manager'
-    ) {
+      field.fieldname === 'custom_project_manager' ||
+      field.label === 'Project Manager'
+
+    const isEditor =
+      field.fieldname === 'editor' ||
+      field.fieldname === 'custom_editor' ||
+      field.label === 'Editor'
+
+    const isExecutor =
+      field.fieldname === 'executor' ||
+      field.fieldname === 'custom_executor' ||
+      field.label === 'Executor' ||
+      (field.fieldname === 'assigned_to' && (doctype === 'CRM Task' || field.label === 'Executor'))
+
+    if (isPM) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter(
@@ -500,18 +513,12 @@ const field = computed(() => {
               u.role === 'Project Manager',
           )
           .map((u) => u.name) || []
-    } else if (
-      field.fieldname === 'editor' ||
-      field.fieldname === 'custom_editor'
-    ) {
+    } else if (isEditor) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter((u) => u.roles?.includes('Editor') || u.role === 'Editor')
           .map((u) => u.name) || []
-    } else if (
-      field.fieldname === 'executor' ||
-      field.fieldname === 'custom_executor'
-    ) {
+    } else if (isExecutor) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter(

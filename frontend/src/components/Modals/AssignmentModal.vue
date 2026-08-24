@@ -11,10 +11,7 @@
         value=""
         doctype="User"
         :placeholder="__('John Doe')"
-        :filters="{
-          name: ['in', users.data.crmUsers?.map((user) => user.name)],
-          ignore_user_type: 1,
-        }"
+        :filters="linkFilters"
         :hideMe="true"
         @change="(option) => addValue(option) && ($refs.input.value = '')"
       >
@@ -96,7 +93,7 @@ import Link from '@/components/Controls/Link.vue'
 import { usersStore } from '@/stores/users'
 import { useTelemetry } from 'frappe-ui/frappe'
 import { Tooltip, call } from 'frappe-ui'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const props = defineProps({
   doc: { type: Object, default: null },
@@ -114,6 +111,20 @@ const error = ref('')
 
 const { users, getUser } = usersStore()
 const { capture } = useTelemetry()
+
+const linkFilters = computed(() => {
+  let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
+  if (props.doctype === 'CRM Task') {
+    allowedUsers =
+      users.data?.crmUsers
+        ?.filter((u) => u.roles?.includes('Executor') || u.role === 'Executor')
+        .map((u) => u.name) || []
+  }
+  return {
+    name: ['in', allowedUsers],
+    ignore_user_type: 1,
+  }
+})
 
 const removeValue = (value) => {
   assignees.value = assignees.value.filter(

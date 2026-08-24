@@ -166,11 +166,11 @@ export function formatCompactNumber(value, maximumFractionDigits = 1) {
   }).format(flt(value))
 }
 
-export function formatCurrency(value, format, currency = 'USD', precision = 2) {
+export function formatCurrency(value, format, currency = window.sysdefaults?.currency || 'INR', precision = 2) {
   value = value == null || value === '' ? 0 : value
 
   if (typeof precision != 'number') {
-    precision = cint(precision || window.sysdefaults.currency_precision || 2)
+    precision = cint(precision || window.sysdefaults?.currency_precision || 2)
   }
 
   // If you change anything below, it's going to hurt a company in UAE, a bit.
@@ -201,7 +201,7 @@ export function formatCurrency(value, format, currency = 'USD', precision = 2) {
 }
 
 function getNumberFormat(format = null) {
-  return format || window.sysdefaults.number_format || '#,###.##'
+  return format || window.sysdefaults?.number_format || '#,##,###.##'
 }
 
 function getCurrencySymbol(currencyCode) {
