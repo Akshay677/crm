@@ -8,6 +8,7 @@
   />
   <Autocomplete
     v-else-if="filter.fieldtype === 'Select'"
+    class="quick-filter-autocomplete"
     :modelValue="filter.value ? { label: filter.value, value: filter.value } : null"
     :options="formattedOptions"
     :placeholder="filter.label"
@@ -165,3 +166,11 @@ function updateFilter(f, value) {
   emit('applyQuickFilter', f, value)
 }
 </script>
+
+<style>
+.quick-filter-autocomplete button span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
