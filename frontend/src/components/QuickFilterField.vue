@@ -35,6 +35,7 @@
     v-else-if="filter.fieldtype === 'Link'"
     :value="filter.value"
     :doctype="filter.options"
+    :filters="linkFilters"
     :placeholder="filter.label"
     @change="(data) => updateFilter(filter, data)"
   />
@@ -56,6 +57,7 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
+import { usersStore } from '@/stores/users'
 import {
   FormControl,
   DatePicker,
@@ -70,7 +72,52 @@ const props = defineProps({
   filter: { type: Object, required: true },
 })
 
+const { users } = usersStore()
 const filter = reactive(props.filter)
+
+const linkFilters = computed(() => {
+  if (props.filter.fieldtype === 'Link' && props.filter.options === 'User') {
+    let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
+    if (
+      props.filter.fieldname === 'project_manager' ||
+      props.filter.fieldname === 'custom_project_manager'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Project Manager') ||
+              u.role === 'Project Manager',
+          )
+          .map((u) => u.name) || []
+    } else if (
+      props.filter.fieldname === 'editor' ||
+      props.filter.fieldname === 'custom_editor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter((u) => u.roles?.includes('Editor') || u.role === 'Editor')
+          .map((u) => u.name) || []
+    } else if (
+      props.filter.fieldname === 'executor' ||
+      props.filter.fieldname === 'custom_executor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Executor') ||
+              u.role === 'Executor',
+          )
+          .map((u) => u.name) || []
+    }
+    return {
+      name: ['in', allowedUsers],
+      ignore_user_type: 1,
+    }
+  }
+  return []
+})
 
 const formattedOptions = computed(() => {
   let opts = props.filter.options

@@ -25,7 +25,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             <!-- 1. Who can take next campaign -->
             <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2">
-              <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+              <div class="flex items-center gap-2 text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
                 <LucideUserCheck class="size-4" />
                 <span>{{ __('Who Takes Next Campaign') }}</span>
               </div>
@@ -38,7 +38,7 @@
                   <span class="font-medium text-ink-gray-8 truncate">
                     <span class="text-ink-gray-5">{{ person.role_type }}:</span> {{ person.full_name }}
                   </span>
-                  <span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-bold shrink-0">
+                  <span class="px-1.5 py-0.5 rounded text-[10px] bg-green-50 text-green-700 font-bold shrink-0">
                     {{ person.band }}
                   </span>
                 </div>
@@ -102,7 +102,7 @@
             <!-- 3. Rework Leaderboard (Edits bouncing) -->
             <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2">
               <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2 text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">
+                <div class="flex items-center gap-2 text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">
                   <LucideAlertTriangle class="size-4" />
                   <span>{{ __('Rework Leaderboard') }}</span>
                 </div>
@@ -115,7 +115,7 @@
                   @click="openCampaign(cmp.name || cmp.campaign)"
                 >
                   <span class="font-medium text-ink-gray-8 truncate max-w-[120px] group-hover:text-primary-600">{{ cmp.song || cmp.campaign }}</span>
-                  <span class="px-1.5 py-0.5 rounded text-[11px] bg-rose-50 text-rose-700 font-semibold shrink-0">
+                  <span class="px-1.5 py-0.5 rounded text-[11px] bg-red-50 text-red-700 font-semibold shrink-0">
                     {{ cmp.rework_rounds }} {{ __('rounds') }}
                   </span>
                 </div>
@@ -203,7 +203,7 @@
 
                     <!-- Deliverables (Done / Total) -->
                     <td class="py-3 px-3 text-center text-ink-gray-8">
-                      <span class="font-semibold text-emerald-600">{{ row.completed }}</span>
+                      <span class="font-semibold text-green-600">{{ row.completed }}</span>
                       <span class="text-ink-gray-4"> / {{ row.assigned }}</span>
                     </td>
 
@@ -216,9 +216,9 @@
                     <td class="py-3 px-3 text-center">
                       <span
                         v-if="row.urgent > 0"
-                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/40"
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-600 dark:bg-red-950/40"
                       >
-                        <LucideFlame class="size-3 text-rose-500 shrink-0" />
+                        <LucideFlame class="size-3 text-red-500 shrink-0" />
                         <span>{{ row.urgent }}</span>
                       </span>
                       <span v-else class="text-ink-gray-4">-</span>
@@ -409,13 +409,13 @@ async function openCampaign(campaignId) {
 function getBandBadgeClass(band) {
   switch (band) {
     case 'Available':
-      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+      return 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400'
     case 'Healthy':
       return 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
     case 'Loaded':
       return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
     case 'Overloaded':
-      return 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
+      return 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400'
     default:
       return 'bg-surface-gray-2 text-ink-gray-6'
   }
@@ -424,13 +424,13 @@ function getBandBadgeClass(band) {
 function getBandDotClass(band) {
   switch (band) {
     case 'Available':
-      return 'bg-emerald-500'
+      return 'bg-green-500'
     case 'Healthy':
       return 'bg-blue-500'
     case 'Loaded':
       return 'bg-amber-500'
     case 'Overloaded':
-      return 'bg-rose-500'
+      return 'bg-red-500'
     default:
       return 'bg-gray-400'
   }

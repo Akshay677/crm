@@ -199,8 +199,8 @@ const cardMetaMap = {
   },
   active_campaigns: {
     icon: LucideActivity,
-    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    color: 'text-emerald-600 dark:text-emerald-400',
+    bg: 'bg-green-50 dark:bg-green-950/40',
+    color: 'text-green-600 dark:text-green-400',
   },
   completed_campaigns: {
     icon: LucideCheckCircle2,
@@ -214,8 +214,8 @@ const cardMetaMap = {
   },
   total_deliverables: {
     icon: LucidePackage,
-    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
-    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-violet-50 dark:bg-violet-950/40',
+    color: 'text-violet-600 dark:text-violet-400',
   },
   completed_deliverables: {
     icon: LucideSend,
@@ -234,8 +234,8 @@ const cardMetaMap = {
   },
   total_leads: {
     icon: LucideUsers,
-    bg: 'bg-sky-50 dark:bg-sky-950/40',
-    color: 'text-sky-600 dark:text-sky-400',
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    color: 'text-blue-600 dark:text-blue-400',
   },
   ongoing_deals: {
     icon: LucideHandshake,
@@ -249,8 +249,8 @@ const cardMetaMap = {
   },
   average_won_deal_value: {
     icon: LucideCircleDollarSign,
-    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    color: 'text-emerald-600 dark:text-emerald-400',
+    bg: 'bg-green-50 dark:bg-green-950/40',
+    color: 'text-green-600 dark:text-green-400',
   },
   average_deal_value: {
     icon: LucideCircleDollarSign,
@@ -259,8 +259,8 @@ const cardMetaMap = {
   },
   average_time_to_close_a_lead: {
     icon: LucideTimer,
-    bg: 'bg-rose-50 dark:bg-rose-950/40',
-    color: 'text-rose-600 dark:text-rose-400',
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    color: 'text-red-600 dark:text-red-400',
   },
   average_time_to_close_a_deal: {
     icon: LucideTimer,
@@ -277,13 +277,13 @@ const sectionMetaMap = {
   },
   campaigns_by_execution_stage: {
     icon: LucideBarChart3,
-    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
-    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-violet-50 dark:bg-violet-950/40',
+    color: 'text-violet-600 dark:text-violet-400',
   },
   execution_trend: {
     icon: LucideLineChart,
-    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    color: 'text-emerald-600 dark:text-emerald-400',
+    bg: 'bg-green-50 dark:bg-green-950/40',
+    color: 'text-green-600 dark:text-green-400',
   },
   team_workload: {
     icon: LucideBriefcase,
@@ -292,8 +292,8 @@ const sectionMetaMap = {
   },
   campaigns_at_risk: {
     icon: LucideAlertTriangle,
-    bg: 'bg-rose-50 dark:bg-rose-950/40',
-    color: 'text-rose-600 dark:text-rose-400',
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    color: 'text-red-600 dark:text-red-400',
   },
   sales_trend: {
     icon: LucideLineChart,
@@ -302,8 +302,8 @@ const sectionMetaMap = {
   },
   forecasted_revenue: {
     icon: LucideBarChart3,
-    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
-    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-violet-50 dark:bg-violet-950/40',
+    color: 'text-violet-600 dark:text-violet-400',
   },
   funnel_conversion: {
     icon: LucideFilter,
@@ -317,8 +317,8 @@ const sectionMetaMap = {
   },
   lost_deal_reasons: {
     icon: LucideXCircle,
-    bg: 'bg-rose-50 dark:bg-rose-950/40',
-    color: 'text-rose-600 dark:text-rose-400',
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    color: 'text-red-600 dark:text-red-400',
   },
   leads_by_source: {
     icon: LucideShare2,
@@ -370,10 +370,10 @@ function getTrendBadgeClass(data) {
   if (delta > 0) {
     return negativeIsBetter
       ? 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400'
-      : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
+      : 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400'
   } else if (delta < 0) {
     return negativeIsBetter
-      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
+      ? 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400'
       : 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400'
   } else {
     return 'bg-surface-gray-2 text-ink-gray-5'

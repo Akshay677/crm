@@ -482,12 +482,52 @@ const field = computed(() => {
     }
   }
 
-  if (field.fieldtype === 'Link' && field.options === 'User') {
+  if (
+    (field.fieldtype === 'Link' || field.fieldtype === 'User') &&
+    field.options === 'User'
+  ) {
+    let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
+
+    if (
+      field.fieldname === 'project_manager' ||
+      field.fieldname === 'custom_project_manager'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Project Manager') ||
+              u.role === 'Project Manager',
+          )
+          .map((u) => u.name) || []
+    } else if (
+      field.fieldname === 'editor' ||
+      field.fieldname === 'custom_editor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter((u) => u.roles?.includes('Editor') || u.role === 'Editor')
+          .map((u) => u.name) || []
+    } else if (
+      field.fieldname === 'executor' ||
+      field.fieldname === 'custom_executor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Executor') ||
+              u.role === 'Executor',
+          )
+          .map((u) => u.name) || []
+    }
+
+    const existingFilters = parseLinkFilters(field.link_filters) || {}
     field.fieldtype = 'User'
     field.link_filters = JSON.stringify({
-      name: ['in', users.data.crmUsers?.map((user) => user.name)],
+      ...existingFilters,
+      name: ['in', allowedUsers],
       ignore_user_type: 1,
-      ...(parseLinkFilters(field.link_filters) || {}),
     })
   }
 

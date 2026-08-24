@@ -532,12 +532,38 @@ function parsedField(field) {
   ) {
     let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
 
-    if (field.fieldname === 'project_manager' || field.fieldname === 'custom_project_manager') {
-      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Project Manager') || u.roles?.includes('System Manager')).map(u => u.name) || []
-    } else if (field.fieldname === 'editor' || field.fieldname === 'custom_editor') {
-      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Editor') || u.roles?.includes('System Manager')).map(u => u.name) || []
-    } else if (field.fieldname === 'executor' || field.fieldname === 'custom_executor') {
-      allowedUsers = users.data?.crmUsers?.filter(u => u.roles?.includes('Executor') || u.roles?.includes('System Manager')).map(u => u.name) || []
+    if (
+      field.fieldname === 'project_manager' ||
+      field.fieldname === 'custom_project_manager'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Project Manager') ||
+              u.role === 'Project Manager',
+          )
+          .map((u) => u.name) || []
+    } else if (
+      field.fieldname === 'editor' ||
+      field.fieldname === 'custom_editor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter((u) => u.roles?.includes('Editor') || u.role === 'Editor')
+          .map((u) => u.name) || []
+    } else if (
+      field.fieldname === 'executor' ||
+      field.fieldname === 'custom_executor'
+    ) {
+      allowedUsers =
+        users.data?.crmUsers
+          ?.filter(
+            (u) =>
+              u.roles?.includes('Executor') ||
+              u.role === 'Executor',
+          )
+          .map((u) => u.name) || []
     }
 
     const existingFilters = parseLinkFilters(field.link_filters) || {}
