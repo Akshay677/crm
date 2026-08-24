@@ -64,7 +64,7 @@
               >
                 <div class="flex items-center gap-2">
                   <MegaphoneIcon v-if="section.name === 'Campaigns'" class="size-4" />
-                  <TaskIcon v-else-if="section.name === 'Deliverables'" class="size-4" />
+                  <PackageIcon v-else-if="section.name === 'Deliverables'" class="size-4" />
                   <span>{{ __(section.name) }}</span>
                 </div>
                 <ChevronDownIcon
@@ -198,6 +198,8 @@ import CheckCircleIcon from '~icons/lucide/check-circle'
 import ClockIcon from '~icons/lucide/clock'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import MegaphoneIcon from '~icons/lucide/megaphone'
+import PackageIcon from '~icons/lucide/package'
+import SendIcon from '~icons/lucide/send'
 import SquareAsterisk from '@/components/Icons/SquareAsterisk.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
@@ -370,7 +372,7 @@ const allViews = computed(() => {
         },
         {
           label: 'Posted Deliverables',
-          icon: CheckCircleIcon,
+          icon: SendIcon,
           key: getDeliverableView('Posted Deliverables'),
           to: { name: 'Tasks', query: { view: getDeliverableView('Posted Deliverables') } },
         },
@@ -453,7 +455,7 @@ function getIcon(routeName, icon) {
     case 'Leads':
       return LeadsIcon
     case 'Tasks':
-      return TaskIcon
+      return PackageIcon
     case 'Deals':
       return DealsIcon
     case 'Contacts':
