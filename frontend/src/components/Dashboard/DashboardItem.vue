@@ -228,9 +228,9 @@ const cardMetaMap = {
     color: 'text-teal-600 dark:text-teal-400',
   },
   pending_deliverables: {
-    icon: LucideHourglass,
-    bg: 'bg-orange-50 dark:bg-orange-950/40',
-    color: 'text-orange-600 dark:text-orange-400',
+    icon: LucideClock,
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    color: 'text-amber-600 dark:text-amber-400',
   },
   execution_rate: {
     icon: LucideZap,
