@@ -64,6 +64,7 @@
               >
                 <div class="flex items-center gap-2">
                   <MegaphoneIcon v-if="section.name === 'Campaigns'" class="size-4" />
+                  <TaskIcon v-else-if="section.name === 'Deliverables'" class="size-4" />
                   <span>{{ __(section.name) }}</span>
                 </div>
                 <ChevronDownIcon
@@ -93,10 +94,10 @@
                 >
                   <span class="truncate text-sm">{{ __(link.label) }}</span>
                 </Tooltip>
-                <template #suffix v-if="campaignCounts.data?.[link.label] !== undefined">
+                <template #suffix v-if="campaignCounts.data?.[link.label] !== undefined || deliverableCounts.data?.[link.label] !== undefined">
                   <Badge
                     class="mr-2"
-                    :label="campaignCounts.data[link.label]"
+                    :label="campaignCounts.data?.[link.label] ?? deliverableCounts.data?.[link.label]"
                     variant="subtle"
                   />
                 </template>
@@ -263,6 +264,11 @@ const campaignCounts = createResource({
   auto: true,
 })
 
+const deliverableCounts = createResource({
+  url: 'crm.api.doc.get_deliverable_counts',
+  auto: true,
+})
+
 onMounted(() => {
   const { $socket } = globalStore()
   if ($socket) {
@@ -270,10 +276,16 @@ onMounted(() => {
       if (data && data.doctype === 'CRM Lead') {
         campaignCounts.reload()
       }
+      if (data && data.doctype === 'CRM Task') {
+        deliverableCounts.reload()
+      }
     })
     $socket.on('doc_update', (data) => {
       if (data && data.doctype === 'CRM Lead') {
         campaignCounts.reload()
+      }
+      if (data && data.doctype === 'CRM Task') {
+        deliverableCounts.reload()
       }
     })
   }
@@ -289,7 +301,12 @@ const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
 const getCampaignView = (label) => {
-  const view = getPublicViews().find((v) => v.label === label)
+  const view = getPublicViews().find((v) => v.label === label && v.dt === 'CRM Lead')
+  return view ? String(view.name) : label
+}
+
+const getDeliverableView = (label) => {
+  const view = getPublicViews().find((v) => v.label === label && v.dt === 'CRM Task')
   return view ? String(view.name) : label
 }
 
@@ -341,6 +358,31 @@ const allViews = computed(() => {
       ],
     },
     {
+      name: 'Deliverables',
+      hideLabel: false,
+      opened: true,
+      views: [
+        {
+          label: 'Total Deliverables',
+          icon: ListIcon,
+          key: getDeliverableView('Total Deliverables'),
+          to: { name: 'Tasks', query: { view: getDeliverableView('Total Deliverables') } },
+        },
+        {
+          label: 'Posted Deliverables',
+          icon: CheckCircleIcon,
+          key: getDeliverableView('Posted Deliverables'),
+          to: { name: 'Tasks', query: { view: getDeliverableView('Posted Deliverables') } },
+        },
+        {
+          label: 'Pending Deliverables',
+          icon: ClockIcon,
+          key: getDeliverableView('Pending Deliverables'),
+          to: { name: 'Tasks', query: { view: getDeliverableView('Pending Deliverables') } },
+        },
+      ],
+    },
+    {
       name: 'Others',
       hideLabel: true,
       opened: true,
@@ -349,7 +391,6 @@ const allViews = computed(() => {
         { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' } },
         { label: 'Clients', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
         { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
-        { label: 'Deliverables', icon: TaskIcon, key: 'Tasks', to: { name: 'Tasks' } },
         { label: 'Call Logs', icon: PhoneIcon, key: 'Call Logs', to: { name: 'Call Logs' } },
         { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', to: { name: 'Team Profiles' } },
         { label: 'Creator Pages', icon: markRaw(LucideUsers), key: 'Creator Pages', href: '/app/creator-page' },
@@ -360,8 +401,16 @@ const allViews = computed(() => {
   ]
 
   if (getPublicViews().length) {
-    const campaignLabels = ['Total Campaigns', 'Active Campaigns', 'Completed Campaigns', 'Pending Campaigns']
-    const filteredPublicViews = getPublicViews().filter(v => !campaignLabels.includes(v.label))
+    const customLabels = [
+      'Total Campaigns',
+      'Active Campaigns',
+      'Completed Campaigns',
+      'Pending Campaigns',
+      'Total Deliverables',
+      'Posted Deliverables',
+      'Pending Deliverables',
+    ]
+    const filteredPublicViews = getPublicViews().filter(v => !customLabels.includes(v.label))
     
     if (filteredPublicViews.length) {
       _views.push({
@@ -403,6 +452,8 @@ function getIcon(routeName, icon) {
   switch (routeName) {
     case 'Leads':
       return LeadsIcon
+    case 'Tasks':
+      return TaskIcon
     case 'Deals':
       return DealsIcon
     case 'Contacts':
@@ -427,6 +478,13 @@ function currentRouteKey() {
     return String(getCampaignView('Total Campaigns'))
   }
   if (route.name === 'Lead') return String(route.query.view || getCampaignView('Total Campaigns'))
+  if (route.name === 'Tasks') {
+    if (route.query.view) {
+      return String(route.query.view)
+    }
+    return String(getDeliverableView('Total Deliverables'))
+  }
+  if (route.name === 'Task') return String(route.query.view || getDeliverableView('Total Deliverables'))
   if (route.name === 'Deal') return 'Deals'
   if (route.name === 'Contact') return 'Contacts'
   if (route.name === 'Organization') return 'Organizations'

@@ -865,3 +865,15 @@ def get_campaign_counts():
 		"Completed Campaigns": get_count({"converted": 0, "status": "Completed"}),
 		"Pending Campaigns": get_count({"converted": 0, "status": ["in", ["Pending", "Campaign Created", "PM Assigned"]]}),
 	}
+
+@frappe.whitelist()
+def get_deliverable_counts():
+	def get_count(filters):
+		res = frappe.get_list("CRM Task", filters=filters, fields=[{"COUNT": "name"}])
+		return list(res[0].values())[0] if res else 0
+
+	return {
+		"Total Deliverables": get_count({}),
+		"Posted Deliverables": get_count({"status": "Done"}),
+		"Pending Deliverables": get_count({"status": ["not in", ["Done", "Canceled"]]}),
+	}

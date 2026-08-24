@@ -3,7 +3,7 @@
     <div
       v-if="item.type == 'number_chart'"
       class="flex h-full w-full rounded shadow overflow-hidden transition-all duration-200"
-      :class="['total_campaigns', 'active_campaigns', 'completed_campaigns', 'pending_campaigns', 'total_deliverables'].includes(item.name) && !editing ? 'cursor-pointer hover:ring-1 hover:ring-outline-gray-2 hover:shadow-md' : ''"
+      :class="['total_campaigns', 'active_campaigns', 'completed_campaigns', 'pending_campaigns', 'total_deliverables', 'completed_deliverables', 'pending_deliverables'].includes(item.name) && !editing ? 'cursor-pointer hover:ring-1 hover:ring-outline-gray-2 hover:shadow-md' : ''"
       @click="handleClick"
     >
       <Tooltip :text="__(item.data.tooltip)" class="w-full">
@@ -181,7 +181,12 @@ const showCapacityModal = ref(false)
 const { getPublicViews } = viewsStore()
 
 const getCampaignView = (label) => {
-  const view = getPublicViews().find((v) => v.label === label)
+  const view = getPublicViews().find((v) => v.label === label && v.dt === 'CRM Lead')
+  return view ? view.name : label
+}
+
+const getDeliverableView = (label) => {
+  const view = getPublicViews().find((v) => v.label === label && v.dt === 'CRM Task')
   return view ? view.name : label
 }
 
@@ -404,6 +409,12 @@ function handleClick() {
     pending_campaigns: 'Pending Campaigns',
   }
 
+  const deliverableViews = {
+    total_deliverables: 'Total Deliverables',
+    completed_deliverables: 'Posted Deliverables',
+    pending_deliverables: 'Pending Deliverables',
+  }
+
   if (campaignViews[props.item.name]) {
     const viewLabel = campaignViews[props.item.name]
     const viewName = getCampaignView(viewLabel)
@@ -412,8 +423,14 @@ function handleClick() {
     } else {
       router.push({ name: 'Leads', query: { view: viewName } })
     }
-  } else if (props.item.name === 'total_deliverables') {
-    router.push({ name: 'Tasks' })
+  } else if (deliverableViews[props.item.name]) {
+    const viewLabel = deliverableViews[props.item.name]
+    const viewName = getDeliverableView(viewLabel)
+    if (props.item.name === 'total_deliverables') {
+      router.push({ name: 'Tasks', query: { view: viewName } })
+    } else {
+      router.push({ name: 'Tasks', query: { view: viewName } })
+    }
   }
 }
 </script>
