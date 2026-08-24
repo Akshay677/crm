@@ -196,6 +196,7 @@ import ListIcon from '~icons/lucide/list'
 import ActivityIcon from '~icons/lucide/activity'
 import CheckCircleIcon from '~icons/lucide/check-circle'
 import ClockIcon from '~icons/lucide/clock'
+import HourglassIcon from '~icons/lucide/hourglass'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import MegaphoneIcon from '~icons/lucide/megaphone'
 import PackageIcon from '~icons/lucide/package'
@@ -378,7 +379,7 @@ const allViews = computed(() => {
         },
         {
           label: 'Pending Deliverables',
-          icon: ClockIcon,
+          icon: HourglassIcon,
           key: getDeliverableView('Pending Deliverables'),
           to: { name: 'Tasks', query: { view: getDeliverableView('Pending Deliverables') } },
         },
