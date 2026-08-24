@@ -77,8 +77,11 @@
                       {{ cmp.stage }} • {{ cmp.responsible }}
                     </span>
                   </div>
-                  <span class="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-bold shrink-0">
-                    {{ cmp.days_in_stage >= 1 ? `${cmp.days_in_stage}d in stage` : `${cmp.hours_in_stage}h in stage` }}
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-bold shrink-0"
+                    :title="`${cmp.hours_in_stage} total hours in ${cmp.stage}`"
+                  >
+                    {{ formatTimeInStage(cmp.hours_in_stage) }} in stage
                   </span>
                 </div>
               </div>
@@ -298,10 +301,11 @@
                     <!-- Time in Stage -->
                     <td class="py-3 px-3 text-center font-bold whitespace-nowrap">
                       <span
-                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] whitespace-nowrap"
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] whitespace-nowrap"
                         :class="cmp.hours_in_stage >= 24 ? 'bg-amber-100 text-amber-900 font-bold' : 'bg-surface-gray-2 text-ink-gray-7'"
+                        :title="`${cmp.hours_in_stage} total hours in ${cmp.stage}`"
                       >
-                        {{ cmp.days_in_stage >= 1 ? `${cmp.days_in_stage} days` : `${cmp.hours_in_stage} hrs` }}
+                        {{ formatTimeInStage(cmp.hours_in_stage, true) }}
                       </span>
                     </td>
 
@@ -434,5 +438,20 @@ function getBandDotClass(band) {
     default:
       return 'bg-gray-400'
   }
+}
+
+function formatTimeInStage(totalHours, full = false) {
+  if (!totalHours || totalHours <= 0) return '0 hrs'
+  const hours = parseFloat(totalHours) || 0
+  const d = Math.floor(hours / 24)
+  const h = Math.round(hours % 24)
+
+  if (d >= 1) {
+    if (h > 0) {
+      return full ? `${d} days ${h} hrs` : `${d}d ${h}h`
+    }
+    return full ? `${d} days` : `${d}d`
+  }
+  return full ? `${Math.max(1, Math.round(hours))} hrs` : `${Math.max(1, Math.round(hours))}h`
 }
 </script>
