@@ -193,6 +193,7 @@ import PinIcon from '@/components/Icons/PinIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import UsersIcon from '~icons/lucide/users'
 import ListIcon from '~icons/lucide/list'
+import LayersIcon from '~icons/lucide/layers'
 import ActivityIcon from '~icons/lucide/activity'
 import CheckCircleIcon from '~icons/lucide/check-circle'
 import ClockIcon from '~icons/lucide/clock'
@@ -336,7 +337,7 @@ const allViews = computed(() => {
       views: [
         {
           label: 'Total Campaigns',
-          icon: ListIcon,
+          icon: LayersIcon,
           key: getCampaignView('Total Campaigns'),
           to: { name: 'Leads', query: { view: getCampaignView('Total Campaigns') } },
         },
