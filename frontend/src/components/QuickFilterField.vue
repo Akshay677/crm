@@ -79,10 +79,23 @@ const filter = reactive(props.filter)
 const linkFilters = computed(() => {
   if (props.filter.fieldtype === 'Link' && props.filter.options === 'User') {
     let allowedUsers = users.data?.crmUsers?.map((user) => user.name) || []
-    if (
+    const isPM =
       props.filter.fieldname === 'project_manager' ||
-      props.filter.fieldname === 'custom_project_manager'
-    ) {
+      props.filter.fieldname === 'custom_project_manager' ||
+      props.filter.label === 'Project Manager'
+
+    const isEditor =
+      props.filter.fieldname === 'editor' ||
+      props.filter.fieldname === 'custom_editor' ||
+      props.filter.label === 'Editor'
+
+    const isExecutor =
+      props.filter.fieldname === 'executor' ||
+      props.filter.fieldname === 'custom_executor' ||
+      props.filter.fieldname === 'assigned_to' ||
+      props.filter.label === 'Executor'
+
+    if (isPM) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter(
@@ -91,18 +104,12 @@ const linkFilters = computed(() => {
               u.role === 'Project Manager',
           )
           .map((u) => u.name) || []
-    } else if (
-      props.filter.fieldname === 'editor' ||
-      props.filter.fieldname === 'custom_editor'
-    ) {
+    } else if (isEditor) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter((u) => u.roles?.includes('Editor') || u.role === 'Editor')
           .map((u) => u.name) || []
-    } else if (
-      props.filter.fieldname === 'executor' ||
-      props.filter.fieldname === 'custom_executor'
-    ) {
+    } else if (isExecutor) {
       allowedUsers =
         users.data?.crmUsers
           ?.filter(
