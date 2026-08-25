@@ -35,11 +35,6 @@
             </Button>
           </template>
         </Dropdown>
-        <Button
-          :label="__('Convert to Deal')"
-          variant="solid"
-          @click="showConvertToDealModal = true"
-        />
       </div>
       <div class="flex lg:hidden items-center">
         <Dropdown
@@ -72,11 +67,6 @@
       <CustomActions
         v-if="document.actions?.length"
         :actions="document.actions"
-      />
-      <Button
-        :label="__('Convert')"
-        variant="solid"
-        @click="showConvertToDealModal = true"
       />
     </div>
   </div>
@@ -268,11 +258,6 @@
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
-  <ConvertToDealModal
-    v-if="showConvertToDealModal"
-    v-model="showConvertToDealModal"
-    :lead="doc"
-  />
   <FilesUploader
     v-model="showFilesUploader"
     doctype="CRM Lead"
@@ -324,7 +309,7 @@ import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
-import ConvertToDealModal from '@/components/Modals/ConvertToDealModal.vue'
+
 import {
   openWebsite,
   setupCustomizations,
@@ -375,7 +360,7 @@ const activities = ref(null)
 const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
-const showConvertToDealModal = ref(false)
+
 const showFilesUploader = ref(false)
 
 const {

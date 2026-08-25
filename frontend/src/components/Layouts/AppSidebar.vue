@@ -182,6 +182,7 @@
 import BrushCleaningIcon from '~icons/lucide/brush-cleaning'
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import CRMLogo from '@/components/Icons/CRMLogo.vue'
+import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import ConvertIcon from '@/components/Icons/ConvertIcon.vue'
 import CommentIcon from '@/components/Icons/CommentIcon.vue'
@@ -203,8 +204,6 @@ import MegaphoneIcon from '~icons/lucide/megaphone'
 import PackageIcon from '~icons/lucide/package'
 import SendIcon from '~icons/lucide/send'
 import SquareAsterisk from '@/components/Icons/SquareAsterisk.vue'
-import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
-import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
@@ -391,7 +390,6 @@ const allViews = computed(() => {
       hideLabel: true,
       opened: true,
       views: [
-        { label: 'Deals', icon: DealsIcon, key: 'Deals', to: { name: 'Deals' } },
         { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' } },
         { label: 'Clients', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
         { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
@@ -458,8 +456,6 @@ function getIcon(routeName, icon) {
       return LeadsIcon
     case 'Tasks':
       return PackageIcon
-    case 'Deals':
-      return DealsIcon
     case 'Contacts':
       return ContactsIcon
     case 'Organizations':
@@ -489,7 +485,6 @@ function currentRouteKey() {
     return String(getDeliverableView('Total Deliverables'))
   }
   if (route.name === 'Task') return String(route.query.view || getDeliverableView('Total Deliverables'))
-  if (route.name === 'Deal') return 'Deals'
   if (route.name === 'Contact') return 'Contacts'
   if (route.name === 'Organization') return 'Organizations'
   if (route.name === 'TeamProfile') return 'Team Profiles'
@@ -557,12 +552,6 @@ async function getFirstLead() {
   return await call('crm.api.onboarding.get_first_lead')
 }
 
-async function getFirstDeal() {
-  let firstDeal = localStorage.getItem('firstDeal' + user)
-  if (firstDeal) return firstDeal
-  return await call('crm.api.onboarding.get_first_deal')
-}
-
 const showIntermediateModal = ref(false)
 const currentStep = ref({})
 
@@ -604,52 +593,14 @@ const steps = reactive([
     condition: () => isManager(),
   },
   {
-    name: 'convert_lead_to_deal',
-    title: __('Convert lead to deal'),
-    icon: markRaw(ConvertIcon),
-    completed: false,
-    dependsOn: 'create_first_lead',
-    onClick: async () => {
-      minimize.value = true
-      capture('onboarding_step_clicked_convert_lead_to_deal')
-      currentStep.value = {
-        title: __('Convert lead to deal'),
-        buttonLabel: __('Convert'),
-        videoURL: '/assets/crm/videos/convertToDeal.mov',
-        onClick: async () => {
-          showIntermediateModal.value = false
-          currentStep.value = {}
-
-          let lead = await getFirstLead()
-          if (lead) {
-            router.push({ name: 'Lead', params: { leadId: lead } })
-          } else {
-            router.push({ name: 'Leads' })
-          }
-        },
-      }
-      showIntermediateModal.value = true
-    },
-  },
-  {
     name: 'create_first_task',
     title: __('Create your first task'),
     icon: markRaw(TaskIcon),
     completed: false,
     onClick: async () => {
       minimize.value = true
-      let deal = await getFirstDeal()
       capture('onboarding_step_clicked_create_first_task')
-
-      if (deal) {
-        router.push({
-          name: 'Deal',
-          params: { dealId: deal },
-          hash: '#tasks',
-        })
-      } else {
-        router.push({ name: 'Tasks' })
-      }
+      router.push({ name: 'Tasks' })
     },
   },
   {
@@ -659,18 +610,8 @@ const steps = reactive([
     completed: false,
     onClick: async () => {
       minimize.value = true
-      let deal = await getFirstDeal()
       capture('onboarding_step_clicked_create_first_note')
-
-      if (deal) {
-        router.push({
-          name: 'Deal',
-          params: { dealId: deal },
-          hash: '#notes',
-        })
-      } else {
-        router.push({ name: 'Notes' })
-      }
+      router.push({ name: 'Notes' })
     },
   },
   {
@@ -681,18 +622,8 @@ const steps = reactive([
     dependsOn: 'create_first_lead',
     onClick: async () => {
       minimize.value = true
-      let deal = await getFirstDeal()
       capture('onboarding_step_clicked_add_first_comment')
-
-      if (deal) {
-        router.push({
-          name: 'Deal',
-          params: { dealId: deal },
-          hash: '#comments',
-        })
-      } else {
-        router.push({ name: 'Leads' })
-      }
+      router.push({ name: 'Leads' })
     },
   },
   {
@@ -703,51 +634,8 @@ const steps = reactive([
     dependsOn: 'create_first_lead',
     onClick: async () => {
       minimize.value = true
-      let deal = await getFirstDeal()
       capture('onboarding_step_clicked_send_first_email')
-
-      if (deal) {
-        router.push({
-          name: 'Deal',
-          params: { dealId: deal },
-          hash: '#emails',
-        })
-      } else {
-        router.push({ name: 'Leads' })
-      }
-    },
-  },
-  {
-    name: 'change_deal_status',
-    title: __('Change deal status'),
-    icon: markRaw(StepsIcon),
-    completed: false,
-    dependsOn: 'convert_lead_to_deal',
-    onClick: async () => {
-      minimize.value = true
-      capture('onboarding_step_clicked_change_deal_status')
-
-      currentStep.value = {
-        title: __('Change deal status'),
-        buttonLabel: __('Change'),
-        videoURL: '/assets/crm/videos/changeDealStatus.mov',
-        onClick: async () => {
-          showIntermediateModal.value = false
-          currentStep.value = {}
-
-          let deal = await getFirstDeal()
-          if (deal) {
-            router.push({
-              name: 'Deal',
-              params: { dealId: deal },
-              hash: '#activity',
-            })
-          } else {
-            router.push({ name: 'Leads' })
-          }
-        },
-      }
-      showIntermediateModal.value = true
+      router.push({ name: 'Leads' })
     },
   },
 ])
@@ -792,7 +680,6 @@ const articles = ref([
     opened: false,
     subArticles: [
       { name: 'lead', title: __('Lead') },
-      { name: 'deal', title: __('Deal') },
       { name: 'contact', title: __('Contact') },
       { name: 'organization', title: __('Organization') },
       { name: 'note', title: __('Note') },

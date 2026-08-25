@@ -154,7 +154,7 @@
         </div>
       </div>
       <div
-        v-if="!callLog?.data?._lead && !callLog?.data?._deal"
+        v-if="!callLog?.data?._lead"
         class="px-4 pb-7 pt-4 sm:px-6"
       >
         <Button
@@ -174,7 +174,7 @@ import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import DurationIcon from '@/components/Icons/DurationIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
-import Dealsicon from '@/components/Icons/DealsIcon.vue'
+
 import CalendarIcon from '@/components/Icons/CalendarIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
@@ -286,23 +286,18 @@ const detailFields = computed(() => {
       },
     },
     {
-      icon: data._lead ? LeadsIcon : Dealsicon,
+      icon: LeadsIcon,
       name: 'reference_doc',
-      value: data._lead ? 'Lead' : 'Deal',
+      value: 'Lead',
       link: () => {
         if (data._lead) {
           router.push({
             name: 'Lead',
             params: { leadId: data._lead },
           })
-        } else {
-          router.push({
-            name: 'Deal',
-            params: { dealId: data._deal },
-          })
         }
       },
-      condition: () => data._lead || data._deal,
+      condition: () => data._lead,
     },
     {
       icon: CalendarIcon,

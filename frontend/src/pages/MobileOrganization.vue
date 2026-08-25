@@ -122,13 +122,6 @@
             />
           </div>
         </div>
-        <DealsListView
-          v-if="tab.label === 'Deals' && rows.length"
-          class="mt-4"
-          :rows="rows"
-          :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
-        />
         <ContactsListView
           v-if="tab.label === 'Contacts' && rows.length"
           class="mt-4"
@@ -154,11 +147,11 @@
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import Icon from '@/components/Icon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
-import DealsListView from '@/components/ListViews/DealsListView.vue'
+
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
-import DealsIcon from '@/components/Icons/DealsIcon.vue'
+
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import { useDocument } from '@/data/document'
 import { getSettings } from '@/stores/settings'
@@ -196,7 +189,7 @@ const props = defineProps({
 const { brand } = getSettings()
 const { getUser } = usersStore()
 const { $dialog } = globalStore()
-const { getDealStatus } = statusesStore()
+
 const { doctypeMeta } = getMeta('CRM Organization')
 const { capture } = useTelemetry()
 
@@ -339,12 +332,7 @@ const tabs = [
     label: __('Details'),
     icon: DetailsIcon,
   },
-  {
-    name: 'Deals',
-    label: __('Deals'),
-    icon: h(DealsIcon, { class: 'h-4 w-4' }),
-    count: computed(() => deals.data?.length),
-  },
+
   {
     name: 'Contacts',
     label: __('Contacts'),
@@ -353,28 +341,6 @@ const tabs = [
   },
 ]
 
-const deals = createListResource({
-  type: 'list',
-  doctype: 'CRM Deal',
-  cache: ['deals', props.organizationId],
-  fields: [
-    'name',
-    'organization',
-    'currency',
-    'deal_value',
-    'status',
-    'email',
-    'mobile_no',
-    'deal_owner',
-    'modified',
-  ],
-  filters: {
-    organization: props.organizationId,
-  },
-  orderBy: 'modified desc',
-  pageLength: 20,
-  auto: true,
-})
 
 const contacts = createListResource({
   type: 'list',
@@ -398,42 +364,18 @@ const contacts = createListResource({
 })
 
 const rows = computed(() => {
-  let list = !tabIndex.value ? deals : contacts
+  let list = contacts
 
   if (!list.data) return []
 
   return list.data.map((row) => {
-    return !tabIndex.value ? getDealRowObject(row) : getContactRowObject(row)
+    return getContactRowObject(row)
   })
 })
 
-const { getFormattedCurrency } = getMeta('CRM Deal')
-
 const columns = computed(() => {
-  return tabIndex.value === 0 ? dealColumns : contactColumns
+  return contactColumns
 })
-
-function getDealRowObject(deal) {
-  return {
-    name: deal.name,
-    organization: {
-      label: deal.organization,
-      logo: organization.doc?.organization_logo,
-    },
-    deal_value: getFormattedCurrency('deal_value', deal),
-    status: {
-      label: deal.status,
-      color: getDealStatus(deal.status)?.color,
-    },
-    email: deal.email,
-    mobile_no: deal.mobile_no,
-    deal_owner: {
-      label: deal.deal_owner && getUser(deal.deal_owner).full_name,
-      ...(deal.deal_owner && getUser(deal.deal_owner)),
-    },
-    modified: timestampCell(deal.modified),
-  }
-}
 
 function getContactRowObject(contact) {
   return {
@@ -453,44 +395,7 @@ function getContactRowObject(contact) {
   }
 }
 
-const dealColumns = [
-  {
-    label: __('Organization'),
-    key: 'organization',
-    width: '11rem',
-  },
-  {
-    label: __('Amount'),
-    key: 'deal_value',
-    align: 'right',
-    width: '9rem',
-  },
-  {
-    label: __('Status'),
-    key: 'status',
-    width: '10rem',
-  },
-  {
-    label: __('Email'),
-    key: 'email',
-    width: '12rem',
-  },
-  {
-    label: __('Mobile Number'),
-    key: 'mobile_no',
-    width: '11rem',
-  },
-  {
-    label: __('Deal Owner'),
-    key: 'deal_owner',
-    width: '10rem',
-  },
-  {
-    label: __('Last Modified'),
-    key: 'modified',
-    width: '8rem',
-  },
-]
+
 
 const contactColumns = [
   {
