@@ -120,6 +120,7 @@
       </div>
     </Resizer>
     <Tabs
+      v-if="tabs.length > 0"
       v-model="tabIndex"
       as="div"
       :tabs="tabs"
@@ -249,6 +250,15 @@
 
       </template>
     </Tabs>
+    <div
+      v-else-if="!isMobileView"
+      class="flex flex-1 items-center justify-center bg-surface-gray-1"
+    >
+      <div class="flex flex-col items-center justify-center space-y-3 text-ink-gray-4">
+        <Icon icon="lucide-contact" class="!h-10 !w-10" />
+        <div class="text-xl font-medium">{{ __('No linked details') }}</div>
+      </div>
+    </div>
   </div>
   <ErrorPage
     v-else-if="errorTitle"
