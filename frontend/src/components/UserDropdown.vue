@@ -2,7 +2,7 @@
   <Dropdown :options="dropdownItems" v-bind="$attrs">
     <template #default="{ open }">
       <button
-        class="flex h-12 items-center rounded-md py-2 duration-300 ease-in-out"
+        class="flex min-h-12 items-center rounded-md py-2 duration-300 ease-in-out"
         :class="
           isCollapsed
             ? 'w-auto px-0'
@@ -25,6 +25,9 @@
           </div>
           <div class="mt-1 text-sm leading-none text-ink-gray-7 truncate">
             {{ user.full_name }}
+          </div>
+          <div v-if="user.role" class="mt-1 text-xs leading-none text-ink-gray-5 truncate">
+            {{ user.role }}
           </div>
         </div>
         <div
