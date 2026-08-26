@@ -294,6 +294,15 @@ onMounted(() => {
   }
 })
 
+// Reload counts on every route change so sidebar always reflects current data
+watch(
+  () => route.fullPath,
+  () => {
+    campaignCounts.reload()
+    deliverableCounts.reload()
+  },
+)
+
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 
 // The mobile drawer pins the sidebar open, so it is never visually collapsed

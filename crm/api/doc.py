@@ -822,6 +822,8 @@ def delete_bulk_docs(doctype: str, items: str | list, delete_linked: bool = Fals
 	items = frappe.parse_json(items)
 	if not isinstance(items, list):
 		frappe.throw(_("Items must be a list"))
+	
+	items = [str(i) for i in items]
 
 	for doc in items:
 		try:
@@ -851,6 +853,8 @@ def delete_bulk_docs(doctype: str, items: str | list, delete_linked: bool = Fals
 		frappe.enqueue("frappe.desk.reportview.delete_bulk", doctype=doctype, items=items)
 	else:
 		delete_bulk(doctype, items)
+
+	frappe.publish_realtime("list_update", {"doctype": doctype})
 	return "success"
 
 @frappe.whitelist()

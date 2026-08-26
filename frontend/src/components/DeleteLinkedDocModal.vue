@@ -9,7 +9,7 @@
           <div>
             <h3 class="text-3xl-semibold leading-6 text-ink-gray-9">
               {{
-                linkedDocs?.length == 0
+                linkedDocs?.length == 0 && !linkedDocsResource.loading
                   ? __('Delete')
                   : __('Delete or unlink linked documents')
               }}
@@ -19,7 +19,10 @@
             <Button variant="ghost" icon="lucide-x" @click="show = false" />
           </div>
         </div>
-        <div>
+        <div v-if="linkedDocsResource.loading" class="flex justify-center p-4">
+          <Spinner class="w-6 h-6 text-ink-gray-5" />
+        </div>
+        <div v-else>
           <div v-if="linkedDocs?.length > 0">
             <span class="text-ink-gray-5 text-base">
               {{
@@ -60,7 +63,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!confirmDeleteInfo.show" class="px-4 pb-7 pt-0 sm:px-6">
+      <div v-if="!confirmDeleteInfo.show && !linkedDocsResource.loading" class="px-4 pb-7 pt-0 sm:px-6">
         <div class="flex flex-row-reverse gap-2">
           <Button
             v-if="linkedDocs?.length > 0"
@@ -253,6 +256,7 @@ const deleteDoc = async () => {
     doctype: props.doctype,
     name: props.docname,
   })
+  show.value = false
   router.push({ name: props.name })
   props?.reload?.()
 }
