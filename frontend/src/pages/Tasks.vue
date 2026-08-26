@@ -203,6 +203,8 @@ import { timestampCell } from '@/composables/useTimelinePreferences'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
 import { computed, ref } from 'vue'
+import { useBroadcast } from '@/composables/useBroadcast'
+import { deletingDocs } from '@/data/document'
 import { useRouter } from 'vue-router'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
@@ -212,6 +214,7 @@ const { updateOnboardingStep } = useOnboarding('frappecrm')
 const { capture } = useTelemetry()
 
 const router = useRouter()
+const { send } = useBroadcast()
 
 const tasksListView = ref(null)
 
@@ -321,6 +324,7 @@ const { showModal } = useDoctypeModal()
 const taskCallbacks = {
   afterInsert: () => {
     tasks.value.reload()
+    send('doc_inserted', { doctype: 'CRM Task' })
     updateOnboardingStep('create_first_task')
     capture('task_created')
   },
@@ -371,10 +375,14 @@ function actions(name) {
 }
 
 async function deleteTask(name) {
+  const key = `CRM Task::${name}`
+  deletingDocs.add(key)
   await call('frappe.client.delete', {
     doctype: 'CRM Task',
     name,
   })
+  send('doc_deleted', { doctype: 'CRM Task' })
+  setTimeout(() => deletingDocs.delete(key), 5000)
 }
 
 function redirect(doctype, docname) {

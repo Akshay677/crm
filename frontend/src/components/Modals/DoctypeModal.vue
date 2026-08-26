@@ -64,6 +64,7 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import { useDocument } from '@/data/document'
+import { useBroadcast } from '@/composables/useBroadcast'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
@@ -83,6 +84,8 @@ const props = defineProps({
 const show = defineModel({ type: Boolean })
 
 const emit = defineEmits(['afterInsert', 'afterUpdate'])
+
+const { send } = useBroadcast()
 
 const router = useRouter()
 
@@ -108,6 +111,7 @@ const _create = createResource({
   url: 'frappe.client.insert',
   onSuccess: (d) => {
     document.doc = {}
+    send('doc_inserted', { doctype: props.doctype })
     emit('afterInsert', d)
     show.value = false
   },

@@ -94,6 +94,9 @@ class CRMLead(Document):
 				self.share_with_agent(self.lead_owner)
 			self.assign_agent(self.lead_owner)
 
+	def on_trash(self):
+		frappe.publish_realtime("list_update", {"doctype": self.doctype}, after_commit=True)
+
 	def before_save(self):
 		self.apply_sla()
 

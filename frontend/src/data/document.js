@@ -13,6 +13,11 @@ const controllersCache = {}
 const assigneesCache = {}
 const permissionsCache = {}
 
+// Keys: `${doctype}::${docname}`. Add a document here before calling
+// frappe.client.delete so the realtime-triggered onError handler does not
+// show a "not found" toast for a document that was intentionally deleted.
+export const deletingDocs = new Set()
+
 export function useDocument(doctype, docname, resourceOverrides = {}) {
   if (typeof docname === 'number') docname = String(docname)
   const { setupScript, scripts } = getScript(doctype)
@@ -37,16 +42,21 @@ export function useDocument(doctype, docname, resourceOverrides = {}) {
           onSuccess: async () => await setupFormScript(),
           onError: (err) => {
             error.value = err
-            if (err.exc_type === 'DoesNotExistError') {
-              toast.error(__(err.messages[0] || 'Document does not exist'))
+            const key = `${doctype}::${docname}`
+            if (deletingDocs.has(key)) {
+              return // Silently ignore errors (like 404s) for docs we just deleted
             }
-            if (err.exc_type === 'PermissionError') {
+            if (err.exc_type === 'DoesNotExistError' || err.messages?.[0]?.includes('not found')) {
+              toast.error(__(err.messages[0] || 'Document does not exist'))
+            } else if (err.exc_type === 'PermissionError') {
               toast.error(
                 __(
                   err.messages[0] ||
                     'You do not have permission to access this document',
                 ),
               )
+            } else {
+              toast.error(__(err.messages?.[0] || err.message || 'An error occurred'))
             }
           },
           setValue: {

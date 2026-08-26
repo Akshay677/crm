@@ -260,7 +260,7 @@ const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
 const { capture } = useTelemetry()
 const { clearDemoData, isDemoDataCreated } = useDemoData()
-const { send } = useBroadcast()
+const { send, on } = useBroadcast()
 
 const campaignCounts = createResource({
   url: 'crm.api.doc.get_campaign_counts',
@@ -292,6 +292,16 @@ onMounted(() => {
       }
     })
   }
+
+  on('doc_deleted', (data) => {
+    if (data?.doctype === 'CRM Lead') campaignCounts.reload()
+    if (data?.doctype === 'CRM Task') deliverableCounts.reload()
+  })
+  
+  on('doc_inserted', (data) => {
+    if (data?.doctype === 'CRM Lead') campaignCounts.reload()
+    if (data?.doctype === 'CRM Task') deliverableCounts.reload()
+  })
 })
 
 // Reload counts on every route change so sidebar always reflects current data

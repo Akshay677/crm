@@ -135,11 +135,14 @@
 
 <script setup>
 import { createResource, call } from 'frappe-ui'
+import { deletingDocs } from '@/data/document'
+import { useBroadcast } from '@/composables/useBroadcast'
 import { useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 
 const show = defineModel({ type: Boolean })
 const router = useRouter()
+const { send } = useBroadcast()
 const props = defineProps({
   name: { type: String, required: true },
   doctype: { type: String, required: true },
@@ -252,12 +255,20 @@ const removeDocLinks = () => {
 }
 
 const deleteDoc = async () => {
+  const key = `${props.doctype}::${props.docname}`
+  deletingDocs.add(key)
   await call('frappe.client.delete', {
     doctype: props.doctype,
     name: props.docname,
   })
   show.value = false
-  router.push({ name: props.name })
+  if (props.name) {
+    router.push({ name: props.name })
+  }
   props?.reload?.()
+  send('doc_deleted', { doctype: props.doctype })
+  // Keep suppressing the "not found" toast for 5 s to cover the async
+  // realtime doc_update event that Frappe broadcasts after deletion.
+  setTimeout(() => deletingDocs.delete(key), 5000)
 }
 </script>

@@ -55,6 +55,7 @@ import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { createResource } from 'frappe-ui'
 import { useDocument } from '@/data/document'
+import { useBroadcast } from '@/composables/useBroadcast'
 import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -69,6 +70,7 @@ const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const show = defineModel({ type: Boolean })
 const router = useRouter()
+const { send } = useBroadcast()
 const error = ref(null)
 const isLeadCreating = ref(false)
 
@@ -157,6 +159,7 @@ async function createNewLead() {
       },
       onSuccess(data) {
         capture('lead_created')
+        send('doc_inserted', { doctype: 'CRM Lead' })
         isLeadCreating.value = false
         show.value = false
         lead.doc = {}

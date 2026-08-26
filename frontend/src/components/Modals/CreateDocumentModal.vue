@@ -52,6 +52,7 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 import { usersStore } from '@/stores/users'
 import { getMeta } from '@/stores/meta'
 import { useDocument } from '@/data/document'
+import { useBroadcast } from '@/composables/useBroadcast'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { createResource, ErrorMessage, call } from 'frappe-ui'
@@ -63,6 +64,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['callback'])
+const { send } = useBroadcast()
 
 const { isManager } = usersStore()
 
@@ -154,6 +156,7 @@ async function create() {
 
   loading.value = false
   show.value = false
+  send('doc_inserted', { doctype: props.doctype })
   emit('callback', doc)
   _data.doc = {}
 }

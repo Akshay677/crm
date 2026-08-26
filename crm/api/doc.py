@@ -854,7 +854,7 @@ def delete_bulk_docs(doctype: str, items: str | list, delete_linked: bool = Fals
 	else:
 		delete_bulk(doctype, items)
 
-	frappe.publish_realtime("list_update", {"doctype": doctype})
+	frappe.publish_realtime("list_update", {"doctype": doctype}, after_commit=True)
 	return "success"
 
 @frappe.whitelist()

@@ -1,6 +1,7 @@
 # Copyright (c) 2023, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import frappe
 from frappe.desk.form.assign_to import add as assign
 from frappe.desk.form.assign_to import remove as unassign
 from frappe.model.document import Document
@@ -29,6 +30,10 @@ class CRMTask(Document):
 
 	def after_insert(self):
 		self.assign_to()
+		frappe.publish_realtime("list_update", {"doctype": self.doctype}, after_commit=True)
+
+	def on_trash(self):
+		frappe.publish_realtime("list_update", {"doctype": self.doctype}, after_commit=True)
 
 	def validate(self):
 		if self.is_new() or not self.assigned_to:

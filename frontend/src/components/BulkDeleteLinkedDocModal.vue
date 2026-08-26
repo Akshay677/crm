@@ -91,6 +91,8 @@
 
 <script setup>
 import { call } from 'frappe-ui'
+import { deletingDocs } from '@/data/document'
+import { useBroadcast } from '@/composables/useBroadcast'
 import { ref } from 'vue'
 
 const show = defineModel({ type: Boolean })
@@ -99,6 +101,8 @@ const props = defineProps({
   items: { type: Array, required: true },
   reload: { type: Function, required: true },
 })
+
+const { send } = useBroadcast()
 
 const confirmDeleteInfo = ref({
   show: false,
@@ -130,6 +134,11 @@ const confirmUnlink = () => {
 }
 
 const deleteDocs = () => {
+  // Mark all items as being deleted so the realtime-triggered onError handler
+  // in document.js does not show a spurious "not found" toast for each one.
+  const keys = props.items.map((name) => `${props.doctype}::${name}`)
+  keys.forEach((key) => deletingDocs.add(key))
+
   call('crm.api.doc.delete_bulk_docs', {
     items: props.items,
     doctype: props.doctype,
@@ -141,6 +150,9 @@ const deleteDocs = () => {
     }
     show.value = false
     props.reload()
+    send('doc_deleted', { doctype: props.doctype })
+    // Keep suppressing for 5 s to cover the async realtime doc_update events.
+    setTimeout(() => keys.forEach((key) => deletingDocs.delete(key)), 5000)
   })
 }
 </script>
