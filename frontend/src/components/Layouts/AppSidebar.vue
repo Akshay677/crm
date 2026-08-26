@@ -397,8 +397,8 @@ const allViews = computed(() => {
         { label: 'Team Profiles', icon: markRaw(LucideUserCheck), key: 'Team Profiles', to: { name: 'Team Profiles' } },
         { label: 'Creator Pages', icon: markRaw(LucideUsers), key: 'Creator Pages', href: '/app/creator-page' },
         { label: 'Content Assets', icon: markRaw(LucideVideo), key: 'Content Assets', href: '/app/content-asset' },
-        { label: 'Invoices', icon: markRaw(LucideReceiptText), key: 'Client Invoices', href: '/app/client-invoice' },
-      ],
+        { label: 'Invoices', icon: markRaw(LucideReceiptText), key: 'Client Invoices', href: '/app/client-invoice', condition: () => isAdmin() },
+      ].filter((link) => (link.condition ? link.condition() : true)),
     },
   ]
 
@@ -543,7 +543,7 @@ function toggleHelpModal() {
 
 // onboarding
 const { user } = sessionStore()
-const { users, isManager } = usersStore()
+const { users, isManager, isAdmin } = usersStore()
 const { isOnboardingStepsCompleted, setUp } = useOnboarding('frappecrm')
 
 async function getFirstLead() {
