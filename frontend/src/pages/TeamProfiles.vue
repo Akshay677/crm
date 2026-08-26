@@ -9,6 +9,7 @@
         :actions="teamProfilesListView.customListActions"
       />
       <Button
+        v-if="isAdmin()"
         variant="solid"
         :label="__('Create')"
         iconLeft="plus"
@@ -71,6 +72,9 @@ import { formatDate, website } from '@/utils'
 import { timestampCell } from '@/composables/useTimelinePreferences'
 import { ref, computed } from 'vue'
 import EmptyState from '../components/ListViews/EmptyState.vue'
+import { usersStore } from '@/stores/users'
+
+const { isAdmin } = usersStore()
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('Team Profile')

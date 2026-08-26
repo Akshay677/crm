@@ -152,6 +152,7 @@
     doctype="Team Profile"
     :options="{
       hideAssign: true,
+      hideDelete: !isAdmin(),
     }"
   />
 </template>
@@ -173,7 +174,10 @@ import {
   Dropdown,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
+import { usersStore } from '@/stores/users'
 import { ref, computed, watch } from 'vue'
+
+const { isAdmin } = usersStore()
 import { useRoute } from 'vue-router'
 
 defineProps({
