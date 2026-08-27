@@ -33,7 +33,7 @@ def setup():
 
     # Active Campaigns (Not Completed and Not Cancelled)
     create_view("Active Campaigns", {
-        "status": ["not in", ["Completed", "Cancelled"]]
+        "status": ["not in", ["Completed", "Cancelled", "On Hold"]]
     })
 
     # Completed Campaigns
@@ -43,7 +43,7 @@ def setup():
 
     # Pending Campaigns
     create_view("Pending Campaigns", {
-        "status": "Pending"
+        "status": ["in", ["Pending", "Campaign Created", "PM Assigned", "On Hold"]]
     })
 
     frappe.db.commit()
