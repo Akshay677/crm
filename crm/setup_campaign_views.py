@@ -43,7 +43,7 @@ def setup():
 
     # Pending Campaigns
     create_view("Pending Campaigns", {
-        "status": ["in", ["Pending", "Campaign Created", "PM Assigned", "On Hold"]]
+        "status": ["in", ["Pending", "On Hold"]]
     })
 
     frappe.db.commit()
