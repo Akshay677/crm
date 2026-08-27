@@ -674,21 +674,24 @@ async function fieldChange(value, df) {
   }
 }
 function getMinDate(field) {
+  const now = new Date()
+  const yyyy = now.getFullYear()
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  const todayStr = yyyy + '-' + mm + '-' + dd
+
+  if (doctype === 'CRM Lead' || ['custom_start_date', 'custom_end_date', 'custom_deadline'].includes(field.fieldname)) {
+    if (field.fieldtype === 'Datetime') {
+      return todayStr + ' 00:00:00'
+    }
+    return todayStr
+  }
+
   if (doctype === 'CRM Task' && field.fieldname === 'due_date') {
-    const now = new Date()
-    return (
-      now.getFullYear() +
-      '-' +
-      String(now.getMonth() + 1).padStart(2, '0') +
-      '-' +
-      String(now.getDate()).padStart(2, '0') +
-      ' ' +
-      String(now.getHours()).padStart(2, '0') +
-      ':' +
-      String(now.getMinutes()).padStart(2, '0') +
-      ':' +
-      String(now.getSeconds()).padStart(2, '0')
-    )
+    const hh = String(now.getHours()).padStart(2, '0')
+    const min = String(now.getMinutes()).padStart(2, '0')
+    const ss = String(now.getSeconds()).padStart(2, '0')
+    return todayStr + ' ' + hh + ':' + min + ':' + ss
   }
   return undefined
 }
