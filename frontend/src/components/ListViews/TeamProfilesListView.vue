@@ -153,6 +153,7 @@
     :options="{
       hideAssign: true,
       hideDelete: !isAdmin(),
+      hideEdit: !isAdmin() && !isProjectManager(),
     }"
   />
 </template>
@@ -177,7 +178,7 @@ import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
 import { ref, computed, watch } from 'vue'
 
-const { isAdmin } = usersStore()
+const { isAdmin, isProjectManager } = usersStore()
 import { useRoute } from 'vue-router'
 
 defineProps({

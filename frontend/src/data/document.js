@@ -44,7 +44,13 @@ export function useDocument(doctype, docname, resourceOverrides = {}) {
             error.value = err
             const key = `${doctype}::${docname}`
             if (deletingDocs.has(key)) {
-              return // Silently ignore errors (like 404s) for docs we just deleted
+              if (err.exc_type === 'DoesNotExistError' || err.messages?.[0]?.includes('not found')) {
+                return // Silently ignore expected 404s for docs we just deleted
+              } else {
+                // If deletion failed with a real error (like LinkExistsError), don't suppress it!
+                // Also remove it from deletingDocs so we don't suppress future 404s incorrectly.
+                deletingDocs.delete(key)
+              }
             }
             if (err.exc_type === 'DoesNotExistError' || err.messages?.[0]?.includes('not found')) {
               toast.error(__(err.messages[0] || 'Document does not exist'))

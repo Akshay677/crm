@@ -270,3 +270,12 @@ def remove_user_from_team_profile(doc, method=None):
 def populate_team_profile_full_name(doc, method=None):
 	if doc.user and not doc.full_name:
 		doc.full_name = frappe.db.get_value("User", doc.user, "full_name")
+
+@frappe.whitelist()
+def reset_user_password(user: str, new_password: str):
+	if frappe.session.user != user and "System Manager" not in frappe.get_roles():
+		frappe.throw("You can only change your own password")
+	
+	from frappe.utils.password import update_password
+	update_password(user, new_password)
+	return "success"

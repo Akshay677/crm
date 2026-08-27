@@ -63,11 +63,9 @@ async function submit() {
 
   try {
     for (const user of props.users) {
-      await call('frappe.client.set_value', {
-        doctype: 'User',
-        name: user,
-        fieldname: 'new_password',
-        value: newPassword.value,
+      await call('crm.api.user.reset_user_password', {
+        user: user,
+        new_password: newPassword.value,
       })
     }
     
