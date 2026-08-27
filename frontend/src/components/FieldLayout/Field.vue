@@ -171,6 +171,7 @@
       v-else-if="field.fieldtype === 'Datetime'"
       :value="data[field.fieldname]"
       :format="getFormat('', '', true, true, false)"
+      :min="getMinDate(field)"
       :placeholder="getPlaceholder(field)"
       input-class="border-none"
       @change="(v) => fieldChange(v, field)"
@@ -179,6 +180,7 @@
       v-else-if="field.fieldtype === 'Date'"
       :value="data[field.fieldname]"
       :format="getFormat('', '', true, false, false)"
+      :min="getMinDate(field)"
       :placeholder="getPlaceholder(field)"
       input-class="border-none"
       @change="(v) => fieldChange(v, field)"
@@ -670,6 +672,25 @@ async function fieldChange(value, df) {
   } else {
     await triggerOnChange(df.fieldname, value)
   }
+}
+function getMinDate(field) {
+  if (doctype === 'CRM Task' && field.fieldname === 'due_date') {
+    const now = new Date()
+    return (
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      ' ' +
+      String(now.getHours()).padStart(2, '0') +
+      ':' +
+      String(now.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(now.getSeconds()).padStart(2, '0')
+    )
+  }
+  return undefined
 }
 </script>
 <style scoped>
