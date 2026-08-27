@@ -28,9 +28,16 @@
     :items="showDeleteDocModal.items"
     :reload="reload"
   />
+  <ResetPasswordModal
+    v-if="showResetPasswordModal"
+    v-model="showResetPasswordModal"
+    :users="selectedValues"
+    @reload="reload"
+  />
 </template>
 
 <script setup>
+import ResetPasswordModal from '@/components/Modals/ResetPasswordModal.vue'
 import EditValueModal from '@/components/Modals/EditValueModal.vue'
 import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
 import { setupListCustomizations } from '@/utils'
@@ -60,6 +67,7 @@ const { $dialog, $socket } = globalStore()
 const { capture } = useTelemetry()
 
 const showEditModal = ref(false)
+const showResetPasswordModal = ref(false)
 const selectedValues = ref([])
 const unselectAllAction = ref(() => {})
 const showDeleteDocModal = ref({
@@ -162,6 +170,12 @@ function clearAssignments(selections, unselectAll) {
 const customBulkActions = ref([])
 const customListActions = ref([])
 
+function resetPassword(selections, unselectAll) {
+  selectedValues.value = Array.from(selections)
+  showResetPasswordModal.value = true
+  unselectAllAction.value = unselectAll
+}
+
 function bulkActions(selections, unselectAll) {
   let actions = []
 
@@ -194,6 +208,13 @@ function bulkActions(selections, unselectAll) {
     actions.push({
       label: __('Convert to Deal'),
       onClick: () => convertToDeal(selections, unselectAll),
+    })
+  }
+
+  if (props.doctype === 'Team Profile') {
+    actions.push({
+      label: __('Change Password'),
+      onClick: () => resetPassword(selections, unselectAll),
     })
   }
 
