@@ -29,11 +29,14 @@
                 <LucideUserCheck class="size-4" />
                 <span>{{ __('Who Takes Next Campaign') }}</span>
               </div>
-              <div v-if="whoCanTake.data?.length" class="space-y-1">
+              <div
+                v-if="whoCanTake.data?.length"
+                class="space-y-1 max-h-[76px] overflow-y-auto pr-1"
+              >
                 <div
-                  v-for="person in whoCanTake.data.slice(0, 3)"
+                  v-for="person in whoCanTake.data"
                   :key="person.user"
-                  class="flex items-center justify-between text-xs"
+                  class="flex items-center justify-between text-xs py-0.5"
                 >
                   <span class="font-medium text-ink-gray-8 truncate">
                     <span class="text-ink-gray-5">{{ person.role_type }}:</span> {{ person.full_name }}
