@@ -9,6 +9,7 @@
         :actions="tasksListView.customListActions"
       />
       <Button
+        v-if="getUserRole() !== 'Editor'"
         variant="solid"
         :label="__('Create')"
         iconLeft="plus"
@@ -209,7 +210,7 @@ import { useRouter } from 'vue-router'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Task')
-const { getUser } = usersStore()
+const { getUser, getUserRole } = usersStore()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
 const { capture } = useTelemetry()
 
