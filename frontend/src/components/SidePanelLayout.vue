@@ -470,7 +470,7 @@ const emit = defineEmits(['beforeFieldChange', 'afterFieldChange', 'reload'])
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
 
-const { users, isManager, getUser, isProjectManager, isEditorUser } = usersStore()
+const { users, isManager, getUser, isProjectManager, isEditorUser, isExecutorUser } = usersStore()
 
 const showSidePanelModal = ref(false)
 
@@ -602,7 +602,7 @@ function parsedField(field) {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    isEditorUser() || (isAssignmentField && !isProjectManager())
+    isEditorUser() || isExecutorUser() || (isAssignmentField && !isProjectManager())
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly

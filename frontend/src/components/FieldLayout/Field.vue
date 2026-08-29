@@ -364,7 +364,7 @@ if (doctype) {
     formatCurrency(doc[fn], '', window.sysdefaults?.currency || 'INR', null)
 }
 
-const { users, getUser, isProjectManager, isEditorUser } = usersStore()
+const { users, getUser, isProjectManager, isEditorUser, isExecutorUser } = usersStore()
 
 let triggerOnChange
 let triggerButton
@@ -575,7 +575,7 @@ const field = computed(() => {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
+    ((isEditorUser() || isExecutorUser()) && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly
