@@ -9,6 +9,7 @@
         :actions="leadsListView.customListActions"
       />
       <Button
+        v-if="isProjectManager()"
         variant="solid"
         :label="__('Create')"
         iconLeft="plus"
@@ -301,7 +302,7 @@ import { ref, computed, reactive, h } from 'vue'
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Lead')
 const { makeCall } = globalStore()
-const { getUser } = usersStore()
+const { getUser, isProjectManager } = usersStore()
 const { getLeadStatus } = statusesStore()
 const { on } = useBroadcast()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
