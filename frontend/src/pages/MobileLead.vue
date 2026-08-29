@@ -50,11 +50,6 @@
         v-if="document.actions?.length"
         :actions="document.actions"
       />
-      <Button
-        :label="__('Convert')"
-        variant="solid"
-        @click="showConvertToDealModal = true"
-      />
     </div>
   </div>
   <div v-if="doc.name" class="flex h-full overflow-hidden">
@@ -103,11 +98,7 @@
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
-  <ConvertToDealModal
-    v-if="showConvertToDealModal"
-    v-model="showConvertToDealModal"
-    :lead="doc"
-  />
+
   <DeleteLinkedDocModal
     v-if="showDeleteLinkedDocModal"
     v-model="showDeleteLinkedDocModal"
@@ -374,9 +365,6 @@ function updateField(name, value) {
 function deleteLead() {
   showDeleteLinkedDocModal.value = true
 }
-
-// Convert to Deal
-const showConvertToDealModal = ref(false)
 
 function statusLabel(status) {
   if (isTranslatable('CRM Lead Status')) return __(status)
