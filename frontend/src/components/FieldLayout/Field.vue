@@ -35,10 +35,12 @@
           'HTML',
           'Geolocation',
           'Text Editor',
+          'Code',
         ].includes(field.fieldtype)
       "
-      v-model="data[field.fieldname]"
       type="text"
+      class="form-control"
+      :value="field.fieldtype === 'User' && data[field.fieldname] ? getUser(data[field.fieldname])?.full_name || data[field.fieldname] : data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
       :disabled="true"
       :description="field.description"
@@ -362,7 +364,7 @@ if (doctype) {
     formatCurrency(doc[fn], '', window.sysdefaults?.currency || 'INR', null)
 }
 
-const { users, getUser, isProjectManager } = usersStore()
+const { users, getUser, isProjectManager, isEditorUser } = usersStore()
 
 let triggerOnChange
 let triggerButton
@@ -568,10 +570,12 @@ const field = computed(() => {
     field.label === 'Executor' ||
     (field.fieldname === 'assigned_to' && (doctype === 'CRM Task' || field.label === 'Executor'))
 
+  const isNewDoc = !data.value.name
+
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    (isAssignmentField && !isProjectManager())
+    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly

@@ -99,7 +99,7 @@
                           class="flex h-7 cursor-pointer items-center px-2 py-1 text-ink-gray-5"
                         >
                           <Tooltip :text="__(field.tooltip)">
-                            <div>{{ doc[field.fieldname] }}</div>
+                            <div>{{ field.fieldtype === 'User' && doc[field.fieldname] ? getUser(doc[field.fieldname])?.full_name || doc[field.fieldname] : doc[field.fieldname] }}</div>
                           </Tooltip>
                         </div>
                         <PrimaryDropdown
@@ -470,7 +470,7 @@ const emit = defineEmits(['beforeFieldChange', 'afterFieldChange', 'reload'])
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
 
-const { users, isManager, getUser, isProjectManager } = usersStore()
+const { users, isManager, getUser, isProjectManager, isEditorUser } = usersStore()
 
 const showSidePanelModal = ref(false)
 
@@ -602,7 +602,7 @@ function parsedField(field) {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    (isAssignmentField && !isProjectManager())
+    isEditorUser() || (isAssignmentField && !isProjectManager())
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly
