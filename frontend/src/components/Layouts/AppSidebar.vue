@@ -408,7 +408,7 @@ const allViews = computed(() => {
       hideLabel: true,
       opened: true,
       views: [
-        { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' } },
+        { label: 'Contacts', icon: ContactsIcon, key: 'Contacts', to: { name: 'Contacts' }, condition: () => isManagementUser() },
         { label: 'Clients', icon: OrganizationsIcon, key: 'Organizations', to: { name: 'Organizations' } },
         { label: 'Notes', icon: NoteIcon, key: 'Notes', to: { name: 'Notes' } },
         { label: 'Call Logs', icon: PhoneIcon, key: 'Call Logs', to: { name: 'Call Logs' } },
@@ -561,7 +561,14 @@ function toggleHelpModal() {
 
 // onboarding
 const { user } = sessionStore()
-const { users, isManager, isAdmin } = usersStore()
+const {
+  usersFull,
+  isAdmin,
+  isManager,
+  isSalesUser,
+  isTelephonyAgent,
+  isManagementUser,
+} = usersStore()
 const { isOnboardingStepsCompleted, setUp } = useOnboarding('frappecrm')
 
 async function getFirstLead() {
