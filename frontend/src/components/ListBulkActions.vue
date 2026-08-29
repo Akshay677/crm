@@ -46,6 +46,7 @@ import { useTelemetry } from 'frappe-ui/frappe'
 import { call, toast } from 'frappe-ui'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { usersStore } from '@/stores/users'
 
 const props = defineProps({
   doctype: { type: String, default: '' },
@@ -62,6 +63,7 @@ const props = defineProps({
 const list = defineModel({ type: Object })
 
 const router = useRouter()
+const { isEditorUser, isExecutorUser, isProjectManager, isAdmin } = usersStore()
 
 const { $dialog, $socket } = globalStore()
 const { capture } = useTelemetry()
@@ -178,22 +180,24 @@ function resetPassword(selections, unselectAll) {
 
 function bulkActions(selections, unselectAll) {
   let actions = []
+  const isRestrictedRole = isEditorUser() || isExecutorUser()
+  const isClientDeleteRestricted = props.doctype === 'CRM Organization' && (isProjectManager() || isRestrictedRole) && !isAdmin()
 
-  if (!props.options.hideEdit) {
+  if (!props.options.hideEdit && !isRestrictedRole) {
     actions.push({
       label: __('Edit'),
       onClick: () => editValues(selections, unselectAll),
     })
   }
 
-  if (!props.options.hideDelete) {
+  if (!props.options.hideDelete && !isRestrictedRole && !isClientDeleteRestricted) {
     actions.push({
       label: __('Delete'),
       onClick: () => deleteValues(selections, unselectAll),
     })
   }
 
-  if (!props.options.hideAssign) {
+  if (!props.options.hideAssign && !isRestrictedRole) {
     actions.push({
       label: __('Assign To'),
       onClick: () => assignValues(selections, unselectAll),
