@@ -33,7 +33,7 @@
       @click="modalRef.showNote()"
     />
     <Button
-      v-else-if="title == 'Tasks'"
+      v-else-if="title == 'Tasks' && getUserRole() !== 'Editor'"
       variant="solid"
       :label="__('New Task')"
       iconLeft="plus"
@@ -81,6 +81,7 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import { globalStore } from '@/stores/global'
+import { usersStore } from '@/stores/users'
 import { whatsappEnabled } from '@/composables/whatsapp'
 import { callEnabled } from '@/composables/telephony'
 import { Dropdown } from 'frappe-ui'
@@ -95,6 +96,7 @@ const props = defineProps({
 })
 
 const { makeCall } = globalStore()
+const { getUserRole } = usersStore()
 
 const tabIndex = defineModel({ type: Number })
 const showWhatsappTemplates = defineModel('showWhatsappTemplates', {

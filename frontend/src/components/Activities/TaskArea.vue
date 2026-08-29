@@ -36,7 +36,7 @@
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-1">
+        <div v-if="getUserRole() !== 'Editor'" class="flex items-center gap-1">
           <Dropdown
             :options="taskStatusOptions(modalRef.updateTaskStatus, task)"
           >
@@ -106,6 +106,6 @@ defineProps({
   modalRef: { type: Object, default: () => ({}) },
 })
 
-const { getUser } = usersStore()
+const { getUser, getUserRole } = usersStore()
 const { $dialog } = globalStore()
 </script>
