@@ -470,7 +470,7 @@ const emit = defineEmits(['beforeFieldChange', 'afterFieldChange', 'reload'])
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
 
-const { users, isManager, getUser } = usersStore()
+const { users, isManager, getUser, isProjectManager } = usersStore()
 
 const showSidePanelModal = ref(false)
 
@@ -587,10 +587,24 @@ function parsedField(field) {
     doc.value,
   )
 
+  const isAssignmentField =
+    field.fieldname === 'project_manager' ||
+    field.fieldname === 'custom_project_manager' ||
+    field.label === 'Project Manager' ||
+    field.fieldname === 'editor' ||
+    field.fieldname === 'custom_editor' ||
+    field.label === 'Editor' ||
+    field.fieldname === 'executor' ||
+    field.fieldname === 'custom_executor' ||
+    field.label === 'Executor' ||
+    (field.fieldname === 'assigned_to' && (props.doctype === 'CRM Task' || field.label === 'Executor'))
+
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    scriptReadOnly !== undefined
+    (isAssignmentField && !isProjectManager())
+      ? true
+      : scriptReadOnly !== undefined
       ? scriptReadOnly
       : field.read_only ||
         (field.read_only_depends_on && read_only_via_depends_on)

@@ -199,11 +199,16 @@ onMounted(async () => {
 
 watch(error, (err) => {
   if (err) {
-    errorTitle.value = __(
-      err.exc_type == 'DoesNotExistError'
-        ? __('Document Not Found')
-        : __('Error Occurred'),
-    )
+    if (
+      err.exc_type === 'PermissionError' ||
+      err.exc_type === 'DoesNotExistError' ||
+      err.messages?.[0]?.includes('not found')
+    ) {
+      router.push({ name: 'Leads' })
+      return
+    }
+
+    errorTitle.value = __('Error Occurred')
     errorMessage.value = __(err.messages?.[0] || 'An Error Occurred')
   } else {
     errorTitle.value = ''
