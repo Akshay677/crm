@@ -344,7 +344,6 @@ const allViews = computed(() => {
           icon: LucideLayoutDashboard,
           key: 'Dashboard',
           to: { name: 'Dashboard' },
-          condition: () => !props.mobile,
         },
       ].filter((link) => (link.condition ? link.condition() : true)),
     },
