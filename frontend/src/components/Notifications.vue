@@ -32,46 +32,53 @@
         </div>
       </div>
       <div
-        v-if="notifications.data?.length"
-        class="divide-y divide-outline-elevation-2 overflow-auto text-base"
+        v-if="groupedNotifications.length"
+        class="overflow-auto text-base"
       >
-        <RouterLink
-          v-for="n in notifications.data"
-          :key="n.name || n.comment"
-          :to="getRoute(n)"
-          class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2 transition-colors"
-          :class="[n.read ? 'opacity-65' : 'bg-surface-gray-1 font-medium']"
-          @click="markAsRead(n.name || n.comment || n.notification_type_doc)"
-        >
-          <div class="mt-1 flex items-center gap-2.5">
-            <div
-              class="size-[5px] rounded-full"
-              :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-10']"
-            />
-            <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
-            <UserAvatar v-else :user="n.from_user.name" size="lg" />
+        <div v-for="group in groupedNotifications" :key="group.title">
+          <div class="sticky top-0 z-10 bg-surface-gray-2 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-gray-6 border-y border-outline-elevation-1">
+            {{ __(group.title) }}
           </div>
-          <div>
-            <div
-              v-if="n.notification_text"
-              v-html="sanitizeHTML(n.notification_text)"
-            />
-            <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
-              <span class="font-medium text-ink-gray-9">
-                {{ n.from_user.full_name }}
-              </span>
-              <span>
-                {{ __('mentioned you in {0}', [n.reference_doctype]) }}
-              </span>
-              <span class="font-medium text-ink-gray-9">
-                {{ n.reference_name }}
-              </span>
-            </div>
-            <div class="text-sm text-ink-gray-5">
-              {{ __(timeAgo(n.creation)) }}
-            </div>
+          <div class="divide-y divide-outline-elevation-1">
+            <RouterLink
+              v-for="n in group.items"
+              :key="n.name || n.comment"
+              :to="getRoute(n)"
+              class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2 transition-colors"
+              :class="[n.read ? 'opacity-65' : 'bg-surface-gray-1 font-medium']"
+              @click="markAsRead(n.name || n.comment || n.notification_type_doc)"
+            >
+              <div class="mt-1 flex items-center gap-2.5">
+                <div
+                  class="size-[5px] rounded-full"
+                  :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-10']"
+                />
+                <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
+                <UserAvatar v-else :user="n.from_user.name" size="lg" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div
+                  v-if="n.notification_text"
+                  v-html="sanitizeHTML(n.notification_text)"
+                />
+                <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.from_user.full_name }}
+                  </span>
+                  <span>
+                    {{ __('mentioned you in {0}', [n.reference_doctype]) }}
+                  </span>
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.reference_name }}
+                  </span>
+                </div>
+                <div class="text-sm text-ink-gray-5">
+                  {{ __(timeAgo(n.creation)) }}
+                </div>
+              </div>
+            </RouterLink>
           </div>
-        </RouterLink>
+        </div>
       </div>
       <EmptyState
         v-else
@@ -98,7 +105,7 @@ import { globalStore } from '@/stores/global'
 import { timeAgo, sanitizeHTML } from '@/utils'
 import { onClickOutside } from '@vueuse/core'
 import { useTelemetry } from 'frappe-ui/frappe'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 
 const { $socket } = globalStore()
 const { mark_as_read, toggle, mark_doc_as_read } = notificationsStore()
@@ -114,6 +121,50 @@ onClickOutside(
     ignore: ['#notifications-btn'],
   },
 )
+
+
+function getDayHeader(dateStr) {
+  if (!dateStr) return 'Earlier'
+  const notifDate = new Date(dateStr)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const targetDate = new Date(notifDate.getFullYear(), notifDate.getMonth(), notifDate.getDate())
+
+  if (targetDate.getTime() === today.getTime()) {
+    return 'Today'
+  } else if (targetDate.getTime() === yesterday.getTime()) {
+    return 'Yesterday'
+  } else {
+    const diffDays = Math.floor((today.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays < 7) {
+      return 'This Week'
+    }
+    return 'Earlier'
+  }
+}
+
+const groupedNotifications = computed(() => {
+  if (!notifications.data?.length) return []
+  const groups = {}
+  const groupOrder = ['Today', 'Yesterday', 'This Week', 'Earlier']
+
+  for (const n of notifications.data) {
+    const header = getDayHeader(n.creation)
+    if (!groups[header]) {
+      groups[header] = []
+    }
+    groups[header].push(n)
+  }
+
+  return groupOrder
+    .filter((header) => groups[header]?.length)
+    .map((header) => ({
+      title: header,
+      items: groups[header],
+    }))
+})
 
 function markAsRead(doc) {
   capture('notification_mark_as_read')
