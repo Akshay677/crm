@@ -602,7 +602,7 @@ function parsedField(field) {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    isEditorUser() || isExecutorUser() || (isAssignmentField && !isProjectManager())
+    isEditorUser() || (isAssignmentField && !isProjectManager())
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly

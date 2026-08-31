@@ -575,7 +575,7 @@ const field = computed(() => {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    ((isEditorUser() || isExecutorUser()) && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
+    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly
