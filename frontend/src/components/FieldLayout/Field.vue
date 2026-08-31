@@ -340,7 +340,8 @@ import {
   DateTimePicker,
   TimePicker,
 } from 'frappe-ui'
-import { computed, provide, inject, ref } from 'vue'
+import { computed, provide, inject, ref, onMounted } from 'vue'
+import { sessionStore } from '@/stores/session'
 
 const props = defineProps({
   field: { type: Object, required: true },
@@ -348,6 +349,7 @@ const props = defineProps({
 
 const data = inject('data')
 const doctype = inject('doctype')
+const session = sessionStore()
 const docname = inject('docname', null)
 const preview = inject('preview')
 const isGridRow = inject('isGridRow')
@@ -458,6 +460,19 @@ function getFieldOverrides(fieldname) {
   }
   return formDocument.value?.fieldPropertyOverrides?.[fieldname]
 }
+
+onMounted(() => {
+  const isNewDoc = !data.value.name
+  const isExecutorField =
+    props.field.fieldname === 'executor' ||
+    props.field.fieldname === 'custom_executor' ||
+    props.field.label === 'Executor' ||
+    (props.field.fieldname === 'assigned_to' && (doctype === 'CRM Task' || props.field.label === 'Executor'))
+
+  if (isNewDoc && isExecutorField && isExecutorUser() && !data.value[props.field.fieldname]) {
+    data.value[props.field.fieldname] = session.user
+  }
+})
 
 const field = computed(() => {
   let field = { ...props.field }
@@ -575,7 +590,7 @@ const field = computed(() => {
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager() && !isNewDoc)
+    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager())
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly
