@@ -366,7 +366,7 @@ if (doctype) {
     formatCurrency(doc[fn], '', window.sysdefaults?.currency || 'INR', null)
 }
 
-const { users, getUser, isProjectManager, isEditorUser, isExecutorUser } = usersStore()
+const { users, getUser, isProjectManager, isEditorUser, isExecutorUser, isManagementUser } = usersStore()
 
 let triggerOnChange
 let triggerButton
@@ -469,8 +469,17 @@ onMounted(() => {
     props.field.label === 'Executor' ||
     (props.field.fieldname === 'assigned_to' && (doctype === 'CRM Task' || props.field.label === 'Executor'))
 
-  if (isNewDoc && isExecutorField && isExecutorUser() && !data.value[props.field.fieldname]) {
-    data.value[props.field.fieldname] = session.user
+  const isPMField =
+    props.field.fieldname === 'project_manager' ||
+    props.field.fieldname === 'custom_project_manager' ||
+    props.field.label === 'Project Manager'
+
+  if (isNewDoc && !data.value[props.field.fieldname]) {
+    if (isExecutorField && isExecutorUser()) {
+      data.value[props.field.fieldname] = session.user
+    } else if (isPMField && isProjectManager() && !isManagementUser()) {
+      data.value[props.field.fieldname] = session.user
+    }
   }
 })
 
@@ -573,10 +582,13 @@ const field = computed(() => {
     data.value,
   )
 
-  const isAssignmentField =
+  const isPMField =
     field.fieldname === 'project_manager' ||
     field.fieldname === 'custom_project_manager' ||
-    field.label === 'Project Manager' ||
+    field.label === 'Project Manager'
+
+  const isAssignmentField =
+    isPMField ||
     field.fieldname === 'editor' ||
     field.fieldname === 'custom_editor' ||
     field.label === 'Editor' ||
@@ -587,10 +599,15 @@ const field = computed(() => {
 
   const isNewDoc = !data.value.name
 
+  const isLockedAssignmentField = 
+    isAssignmentField && 
+    !isManagementUser() && 
+    !(isProjectManager() && !isPMField)
+
   // Script overrides for read_only take priority over depends_on
   const scriptReadOnly = overrides?.read_only
   const effectiveReadOnly =
-    (isEditorUser() && !isNewDoc) || (isAssignmentField && !isProjectManager())
+    (isEditorUser() && !isNewDoc) || isLockedAssignmentField
       ? true
       : scriptReadOnly !== undefined
       ? scriptReadOnly
