@@ -30,6 +30,12 @@ export const notificationsStore = defineStore('crm-notifications', () => {
   }
 
   function mark_doc_as_read(doc) {
+    if (notifications.data) {
+      const target = notifications.data.find((n) => n.name === doc || n.comment === doc || n.notification_type_doc === doc)
+      if (target) {
+        target.read = 1
+      }
+    }
     mark_as_read.params = { doc: doc }
     mark_as_read.reload()
     toggle()

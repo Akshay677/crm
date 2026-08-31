@@ -37,10 +37,11 @@
       >
         <RouterLink
           v-for="n in notifications.data"
-          :key="n.comment"
+          :key="n.name || n.comment"
           :to="getRoute(n)"
-          class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
-          @click="markAsRead(n.comment || n.notification_type_doc)"
+          class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2 transition-colors"
+          :class="[n.read ? 'opacity-65' : 'bg-surface-gray-1 font-medium']"
+          @click="markAsRead(n.name || n.comment || n.notification_type_doc)"
         >
           <div class="mt-1 flex items-center gap-2.5">
             <div

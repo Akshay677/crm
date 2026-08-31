@@ -17,6 +17,7 @@ def get_notifications():
 	for notification in notifications:
 		_notifications.append(
 			{
+				"name": notification.name,
 				"creation": notification.creation,
 				"from_user": {
 					"name": notification.from_user,
@@ -45,6 +46,7 @@ def mark_as_read(doc: str | None = None):
 	or_filters = []
 	if doc:
 		or_filters = [
+			{"name": doc},
 			{"comment": doc},
 			{"notification_type_doc": doc},
 		]
