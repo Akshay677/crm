@@ -27,8 +27,8 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <!-- 1. Who can take next campaign -->
             <div class="p-3.5 rounded-xl border border-outline-gray-1 bg-surface-base flex flex-col gap-2 shadow-2xs">
-              <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
-                <LucideUserCheck class="size-4 text-emerald-600" />
+              <div class="flex items-center gap-2 text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">
+                <LucideUserCheck class="size-4 text-green-600" />
                 <span>{{ __('Who Takes Next Campaign') }}</span>
               </div>
               <div
@@ -45,9 +45,10 @@
                       <span class="text-ink-gray-5">{{ person.role_type }}:</span> {{ person.full_name }}
                     </span>
                   </div>
-                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-semibold shrink-0">
-                    {{ person.band }}
-                  </span>
+                  <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0" :class="getBandBadgeClass(person.band)">
+                    <span class="size-1.5 rounded-full" :class="getBandDotClass(person.band)"></span>
+                    <span>{{ __(person.band) }}</span>
+                  </div>
                 </div>
               </div>
               <div v-else class="text-xs text-ink-gray-5 py-1">
